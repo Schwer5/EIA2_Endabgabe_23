@@ -7,6 +7,30 @@
 namespace Eisdiele {
     window.addEventListener("load", handleLoad);
 
+    enum MOOD {
+        HAPPY,
+        OKAY,
+        NEUTRAL,
+        SAD,
+        ANGRY
+    }
+    enum FLAVOUR {
+        STRAWBERRY,
+        CHOCOLATE,
+        LEMON,
+        SMURF
+    }
+    enum TOPPING {
+        CREAM,
+        FRUIT
+    }
+    enum DECORATION {
+        CHERRY,
+        CHOCOSAUCE,
+        SPRINKLES,
+        GLITTER
+    }
+
     function handleLoad(_event: Event): void {
         
         setInterval(update, 40);

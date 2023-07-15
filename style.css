@@ -1,19 +1,253 @@
-.left {
-  width: calc(vw - 8px);
-  height: calc(100vh - 8px);
-  margin: 4px;
+#main-container {
+  display: flex;
+  flex-direction: row;
+  height: 98vh;
 }
 
-.right {
-  width: calc(33vw - 8px);
-  height: calc(100vh - 8px);
-  margin: 4px;
+#canvas-area,
+#countertop,
+#recipe-area {
+  border-radius: 10px;
 }
 
-#background, #foreground {
+#canvas-area {
+  width: 50vw;
+  background: lightsteelblue;
+}
+
+#background,
+#foreground {
   position: absolute;
-  top: 0;
-  left: 0;
+  margin: 10px;
+  border: 4px dotted red;
+  width: 48vw;
+  height: 96vh;
+}
+
+#countertop {
+  width: 20vw;
+  background: brown;
+}
+
+#topping-container {
+  height: 12vh;
+  margin: 2vh;
+  border-radius: 10px;
+}
+
+#fruit {
+  height: 9vh;
+  width: 5vw;
+  margin: 1vh;
+  border-radius: 10px;
+  border: 2px solid silver;
+  background-image: url(images/fruit.png);
+  background-size: cover;
+  float: left;
+  margin-left: 3vw;
+}
+
+#cream {
+  height: 9vh;
+  width: 5vw;
+  margin: 1vh;
+  border-radius: 10px;
+  border: 2px solid silver;
+  background-image: url(images/cream.png);
+  background-size: cover;
+  float: left;
+}
+
+#strawberry {
+  height: 15vh;
+  margin: 2vh;
+  border-radius: 10px;
+  background: pink;
+}
+
+#chocolate {
+  height: 15vh;
+  margin: 2vh;
+  border-radius: 10px;
+  background: chocolate;
+}
+
+#lemon {
+  height: 15vh;
+  margin: 2vh;
+  border-radius: 10px;
+  background: yellow;
+}
+
+#smurf {
+  height: 15vh;
+  margin: 2vh;
+  border-radius: 10px;
+  background: cyan;
+}
+
+#decoration-container {
+  height: 8vh;
+  margin: 2vh;
+  border-radius: 10px
+}
+
+#cherry {
+  height: 5vh;
+  width: 3vw;
+  margin: 1vh;
+  border-radius: 10px;
+  border: 2px solid silver;
+  background-image: url(images/cherry.png);
+  background-size: cover;
+  float: left;
+}
+
+#chocosauce {
+  height: 5vh;
+  width: 3vw;
+  margin: 1vh;
+  border-radius: 10px;
+  border: 2px solid silver;
+  background-image: url(images/choco.png);
+  background-size: cover;
+  float: left;
+}
+
+#sprinkles {
+  height: 5vh;
+  width: 3vw;
+  margin: 1vh;
+  border-radius: 10px;
+  border: 2px solid silver;
+  background-image: url(images/sprinkles.png);
+  background-size: cover;
+  float: left;
+}
+
+#glitter {
+  height: 5vh;
+  width: 3vw;
+  margin: 1vh;
+  border-radius: 10px;
+  border: 2px solid silver;
+  background-image: url(images/glitter.png);
+  background-size: cover;
+  float: left;
+}
+
+#recipe-area {
+  width: 30vw;
+  background: lightslategray;
+  border-radius: 10px;
+}
+
+.inputrecipe {
+  background-color: white;
+  border-bottom: 1px solid grey;
+  height: 200px;
+  padding: 10px 50px;
+  margin: 20px;
+  border-radius: 10px;
+}
+
+#inputIce {
+  background: white;
+  font-size: 20px;
+  padding: 15px 50px;
+  border: none;
   width: 100%;
-  height: 100%;
+  box-sizing: border-box;
+  outline: none;
+}
+
+#inputComment {
+  background: white;
+  font-size: 20px;
+  padding: 20px 50px;
+  border: none;
+  width: 100%;
+  height: 70px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+#selectname {
+  font-size: 20px;
+  border: none;
+  width: 30%;
+  height: 34px;
+  margin-left: 15px;
+}
+
+#datetime {
+  font-size: 20px;
+  padding-left: 30px;
+  border: none;
+  width: 50%;
+}
+
+#addrecipe {
+  position: absolute;
+  right: 50px;
+  top: 200px;
+  font-size: 30px;
+  background: none;
+  border: none;
+  outline: none;
+  color: grey;
+  cursor: pointer;
+}
+
+#deletetask {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 30px;
+  background: none;
+  border: none;
+  outline: none;
+  color: grey;
+  cursor: pointer;
+}
+
+#radiobutton {
+  float: left;
+}
+
+.check {
+  position: absolute;
+  left: 10px;
+  top: 15px;
+  border: 1px solid rgb(189, 189, 189);
+  border-radius: 100%;
+  width: 30px;
+  height: 30px;
+}
+
+.check i {
+  position: relative;
+  left: 5px;
+  top: 5px;
+}
+
+.check.false i {
+  display: none;
+}
+
+.trash {
+  position: absolute;
+  right: 25px;
+  top: 20px;
+  color: grey;
+  cursor: pointer;
+}
+
+.trash:hover {
+  color: black;
+}
+
+
+#positionierung {
+  display: flex;
 }

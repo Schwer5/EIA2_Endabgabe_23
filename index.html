@@ -3,24 +3,102 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" lang="de">
+    <meta http-equiv="Content-Language" content="de">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Eisdiele_Schwer_Pia</title>
     <script src="Eisdiele_Schwer_Pia.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
+
     <body>
-        <div style="width: 100%; display: table;">
-            <div style="display: table-row; height: 98vh;">
-                <div style="width: 65vw; display: table-cell; background: green;">
-                    <canvas id="background" style="margin: 17px; background: red; width: 64vw; height: 96vh ;"></canvas>
-                    <canvas id="foreground" style="margin: 17px; background: red; width: 64vw; height: 96vh ;"></canvas>
-                </div>
-                <div style="display: table-cell; background: blue;"> 
+        <div id="main-container">
+            <div id="canvas-area">
+                <canvas id="background"></canvas>
+                <canvas id="foreground"></canvas>
+                <div id="seating-container" style="width: 46vw; height: 10vh; position: absolute;  left: 4vw;
+                top: 70vh;">
+                    <div id="seat0" style="width: 5vw; height: 8vh; border: 5px dotted black; margin: 1vh; float: left"></div>
+                    <div id="seat1" style="width: 5vw; height: 8vh; border: 5px dotted black; margin: 1vh; float: left"></div>
+                    <div id="seat2" style="width: 5vw; height: 8vh; border: 5px dotted black; margin: 1vh; float: left"></div>
+                    <div id="seat3" style="width: 5vw; height: 8vh; border: 5px dotted black; margin: 1vh; float: left"></div>
+                    <div id="seat4" style="width: 5vw; height: 8vh; border: 5px dotted black; margin: 1vh; float: left"></div>
+                    <div id="seat5" style="width: 5vw; height: 8vh; border: 5px dotted black; margin: 1vh; float: left"></div>
                 </div>
             </div>
+            <div id="countertop">
+                <div id="topping-container">
+                    <div id="fruit"></div>
+                    <div id="cream"></div>
+                </div>
+                <div id="strawberry"></div>
+                <div id="chocolate"></div>
+                <div id="lemon"></div>
+                <div id="smurf"></div>
+                <div id="decoration-container">
+                    <div id="cherry"></div>
+                    <div id="chocosauce"></div>
+                    <div id="sprinkles"></div>
+                    <div id="glitter"></div>
+                </div>
+            </div>
+            <div id="recipe-area">
+                <fieldset class="inputrecipe">
+                    <input type="text" id="inputIce" placeholder="Bechername">
+                    <label for="selectscoop1">Kugel 1</label>
+                    <select name="Name" id="selectscoop1">
+                        <option value="" selected>Keine</option>
+                        <option value="strawberry">Erdbeer</option>
+                        <option value="chocolate">Schokolade</option>
+                        <option value="lemon">Zitrone</option>
+                        <option value="smurf">Schlumpf</option>
+                    </select>
+                    <br>
+                    <label for="selectscoop2">Kugel 2</label>
+                    <select name="Name" id="selectscoop2">
+                        <option value="" selected>Keine</option>
+                        <option value="strawberry">Erdbeer</option>
+                        <option value="chocolate">Schokolade</option>
+                        <option value="lemon">Zitrone</option>
+                        <option value="smurf">Schlumpf</option>
+                    </select>
+                    <br>
+                    <label for="selectscoop3">Kugel 3</label>
+                    <select name="Name" id="selectscoop3">
+                        <option value="" selected>Keine</option>
+                        <option value="strawberry">Erdbeer</option>
+                        <option value="chocolate">Schokolade</option>
+                        <option value="lemon">Zitrone</option>
+                        <option value="smurf">Schlumpf</option>
+                    </select>
+                    <br>
+                    <label for="selecttopping">Topping</label>
+                    <select name="Name" id="selecttopping">
+                        <option value="" selected>Keine</option>
+                        <option value="fruit">Obst</option>
+                        <option value="cream">Sahne</option>
+                    </select>
+                    <br>
+                    <label for="selectdecoration">Dekoration</label>
+                    <select name="Name" id="selectdecoration">
+                        <option value="" selected>Keine</option>
+                        <option value="cherry">Kirsche</option>
+                        <option value="chocosauce">Schokosoße</option>
+                        <option value="sprinkles">Streusel</option>
+                        <option value="glitter">Glitzer</option>
+                    </select>
+                    <br>
+                    <button id="addrecipe"><i class="fas fa-plus-circle"></i></button>
+                    <label for="inputPrice">Preis</label>
+                    <input type="number" id="inputPrice" placeholder="Preis" min="1" max="7">
+                </fieldset>
+                <div id="task-container"></div>
+            </div>
         </div>
-     </body>
+    </body>
+
 </html>
