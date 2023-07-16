@@ -92,7 +92,12 @@ var Eisdiele;
                 moveVector.x = directionVector.x;
                 moveVector.y = directionVector.y;
             }
-            this.position = new Eisdiele.Vector(currentPosition.x + moveVector.x, currentPosition.y + moveVector.y);
+            if (this.mood != Eisdiele.MOOD.ANGRY) {
+                this.position = new Eisdiele.Vector(currentPosition.x + moveVector.x, currentPosition.y + moveVector.y);
+            }
+            else {
+                this.position = new Eisdiele.Vector(currentPosition.x, currentPosition.y - this.velocity);
+            }
         }
         waitingMood() {
             this.waitingTime += 1;

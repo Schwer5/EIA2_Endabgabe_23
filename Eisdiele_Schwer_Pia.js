@@ -71,6 +71,18 @@ var Eisdiele;
         Eisdiele.backgroundCtx = backgroundCanvas.getContext('2d');
         Eisdiele.foregroundCtx = foregroundCanvas.getContext('2d');
         Eisdiele.Customers = new Eisdiele.CustomerList();
+        let seat0 = document.querySelector("#seat0");
+        seat0.addEventListener("click", Eisdiele.Customers.sendToSeat0);
+        let seat1 = document.querySelector("#seat1");
+        seat1.addEventListener("click", Eisdiele.Customers.sendToSeat1);
+        let seat2 = document.querySelector("#seat2");
+        seat2.addEventListener("click", Eisdiele.Customers.sendToSeat2);
+        let seat3 = document.querySelector("#seat3");
+        seat3.addEventListener("click", Eisdiele.Customers.sendToSeat3);
+        let seat4 = document.querySelector("#seat4");
+        seat4.addEventListener("click", Eisdiele.Customers.sendToSeat4);
+        let seat5 = document.querySelector("#seat5");
+        seat5.addEventListener("click", Eisdiele.Customers.sendToSeat5);
         setInterval(update, 100);
     }
     function update() {

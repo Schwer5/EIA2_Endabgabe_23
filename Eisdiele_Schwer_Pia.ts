@@ -81,6 +81,18 @@ namespace Eisdiele {
         foregroundCtx = <CanvasRenderingContext2D>foregroundCanvas.getContext('2d');
         Customers = new CustomerList();
 
+        let seat0: HTMLDivElement= document.querySelector("#seat0") as HTMLDivElement;
+        seat0.addEventListener("click", Customers.sendToSeat0);
+        let seat1: HTMLDivElement= document.querySelector("#seat1") as HTMLDivElement;
+        seat1.addEventListener("click", Customers.sendToSeat1);
+        let seat2: HTMLDivElement= document.querySelector("#seat2") as HTMLDivElement;
+        seat2.addEventListener("click", Customers.sendToSeat2);
+        let seat3: HTMLDivElement= document.querySelector("#seat3") as HTMLDivElement;
+        seat3.addEventListener("click", Customers.sendToSeat3);
+        let seat4: HTMLDivElement= document.querySelector("#seat4") as HTMLDivElement;
+        seat4.addEventListener("click", Customers.sendToSeat4);
+        let seat5: HTMLDivElement= document.querySelector("#seat5") as HTMLDivElement;
+        seat5.addEventListener("click", Customers.sendToSeat5);
         setInterval(update, 100);
     }
 

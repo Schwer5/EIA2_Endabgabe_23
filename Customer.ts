@@ -110,7 +110,11 @@ namespace Eisdiele {
                 moveVector.x = directionVector.x
                 moveVector.y = directionVector.y
             }
-            this.position = new Vector(currentPosition.x + moveVector.x, currentPosition.y + moveVector.y)
+            if (this.mood != MOOD.ANGRY){
+                this.position = new Vector(currentPosition.x + moveVector.x, currentPosition.y + moveVector.y)
+            } else {
+                this.position = new Vector(currentPosition.x, currentPosition.y - this.velocity)
+            }
         }
 
         public waitingMood(): void {
@@ -245,3 +249,4 @@ namespace Eisdiele {
 
     }
 
+}
