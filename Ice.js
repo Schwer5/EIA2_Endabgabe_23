@@ -49,7 +49,80 @@ var Eisdiele;
             return 1;
         }
         draw() {
-            // Draw ice cream
+            let cw = Eisdiele.foregroundCtx.canvas.width;
+            let ch = Eisdiele.foregroundCtx.canvas.height;
+            this.drawScoop1(new Eisdiele.Vector(0.5 * cw, 0.2 * ch));
+            this.drawScoop2(new Eisdiele.Vector(0.3 * cw, 0.2 * ch));
+            this.drawScoop3(new Eisdiele.Vector(0.7 * cw, 0.2 * ch));
+        }
+        drawScoop1(position) {
+            let cw = Eisdiele.foregroundCtx.canvas.width;
+            let ch = Eisdiele.foregroundCtx.canvas.height;
+            Eisdiele.foregroundCtx.save();
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.arc(position.x, position.y, 40, 0, 2 * Math.PI);
+            Eisdiele.foregroundCtx.fillStyle = "HSL(40,15%,90%)";
+            Eisdiele.foregroundCtx.fill();
+            Eisdiele.foregroundCtx.closePath();
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.arc(position.x, position.y, 20, 0, 2 * Math.PI);
+            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fill();
+            Eisdiele.foregroundCtx.closePath();
+            let imageWidth = 80;
+            let imageHeight = 80;
+            Eisdiele.foregroundCtx.drawImage(Eisdiele.images["cream"], position.x - imageWidth / 2, position.y - imageHeight / 2 - 40, imageWidth, imageHeight);
+            Eisdiele.foregroundCtx.restore();
+        }
+        drawScoop2(position) {
+            let cw = Eisdiele.foregroundCtx.canvas.width;
+            let ch = Eisdiele.foregroundCtx.canvas.height;
+            Eisdiele.foregroundCtx.save();
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.arc(position.x, position.y, 40, 0, 2 * Math.PI);
+            Eisdiele.foregroundCtx.fillStyle = "HSL(40,15%,90%)";
+            Eisdiele.foregroundCtx.fill();
+            Eisdiele.foregroundCtx.closePath();
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.arc(position.x + 15, position.y + 10, 20, 0, 2 * Math.PI);
+            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fill();
+            Eisdiele.foregroundCtx.closePath();
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.arc(position.x - 15, position.y - 10, 20, 0, 2 * Math.PI);
+            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fill();
+            Eisdiele.foregroundCtx.closePath();
+            let imageWidth = 40;
+            let imageHeight = 40;
+            Eisdiele.foregroundCtx.drawImage(Eisdiele.images["sprinkles"], position.x - imageWidth / 2, position.y - imageHeight / 2, imageWidth, imageHeight);
+            Eisdiele.foregroundCtx.restore();
+        }
+        drawScoop3(position) {
+            let cw = Eisdiele.foregroundCtx.canvas.width;
+            let ch = Eisdiele.foregroundCtx.canvas.height;
+            Eisdiele.foregroundCtx.save();
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.arc(position.x, position.y, 40, 0, 2 * Math.PI);
+            Eisdiele.foregroundCtx.fillStyle = "HSL(40,15%,90%)";
+            Eisdiele.foregroundCtx.fill();
+            Eisdiele.foregroundCtx.closePath();
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.arc(position.x - 15, position.y - 10, 20, 0, 2 * Math.PI);
+            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fill();
+            Eisdiele.foregroundCtx.closePath();
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.arc(position.x + 15, position.y - 10, 20, 0, 2 * Math.PI);
+            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fill();
+            Eisdiele.foregroundCtx.closePath();
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.arc(position.x, position.y + 20, 20, 0, 2 * Math.PI);
+            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fill();
+            Eisdiele.foregroundCtx.closePath();
+            Eisdiele.foregroundCtx.restore();
         }
     }
     Eisdiele.Ice = Ice;

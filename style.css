@@ -8,6 +8,8 @@
 #countertop,
 #recipe-area {
   border-radius: 10px;
+  font-family:Georgia, 'Times New Roman', Times, serif;
+  color: green;
 }
 
 #canvas-area {

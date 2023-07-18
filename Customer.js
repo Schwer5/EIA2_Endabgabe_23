@@ -18,9 +18,10 @@ var Eisdiele;
         _eatingTime;
         constructor() {
             // initialize the variables
-            this.mood = Eisdiele.MOOD.OKAY;
-            this.velocity = 10;
+            this.mood = Eisdiele.MOOD.OKAY; //give mood okay for the beginning
+            this.velocity = 2; //give velocity two 
             this.waitingTime = 0;
+            this.wish = this.getRandomIce(); //give him an ice from IceList
         }
         // Getters
         get mood() {
@@ -92,22 +93,41 @@ var Eisdiele;
                 moveVector.x = directionVector.x;
                 moveVector.y = directionVector.y;
             }
-            if (this.mood != Eisdiele.MOOD.ANGRY) {
-                this.position = new Eisdiele.Vector(currentPosition.x + moveVector.x, currentPosition.y + moveVector.y);
-            }
-            else {
-                this.position = new Eisdiele.Vector(currentPosition.x, currentPosition.y - this.velocity);
-            }
+            this.position = new Eisdiele.Vector(currentPosition.x + moveVector.x, currentPosition.y + moveVector.y);
         }
         waitingMood() {
             this.waitingTime += 1;
-            if (this.waitingTime > 100) {
+            if (this.waitingTime > 1000) {
                 this.lowerMood();
                 this.waitingTime = 0;
             }
         }
         ordering() {
-            // code to manage ordering
+            const bubbleWidth = 100;
+            const bubbleHeight = 100;
+            const cornerRadius = 5;
+            const textOffsetX = 10;
+            const textOffsetY = 20;
+            const message = "Bitte ein";
+            // Adjust these to center the bubble on your character
+            const bubbleX = this.position.x - bubbleWidth / 2;
+            const bubbleY = this.position.y - bubbleHeight - 80;
+            // Draw the speech bubble
+            Eisdiele.foregroundCtx.beginPath();
+            Eisdiele.foregroundCtx.moveTo(bubbleX + cornerRadius, bubbleY);
+            Eisdiele.foregroundCtx.arcTo(bubbleX + bubbleWidth, bubbleY, bubbleX + bubbleWidth, bubbleY + bubbleHeight, cornerRadius);
+            Eisdiele.foregroundCtx.arcTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight, cornerRadius);
+            Eisdiele.foregroundCtx.arcTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY, cornerRadius);
+            Eisdiele.foregroundCtx.arcTo(bubbleX, bubbleY, bubbleX + bubbleWidth, bubbleY, cornerRadius);
+            Eisdiele.foregroundCtx.closePath();
+            // Fill the bubble
+            Eisdiele.foregroundCtx.fillStyle = 'white';
+            Eisdiele.foregroundCtx.fill();
+            // Draw the text
+            Eisdiele.foregroundCtx.fillStyle = 'black';
+            Eisdiele.foregroundCtx.font = '16px Arial';
+            Eisdiele.foregroundCtx.fillText(message, bubbleX + textOffsetX, bubbleY + textOffsetY);
+            this.wish.draw();
         }
         checkOrder(order) {
             return this.wish.scoops.every((val, index) => val === order.scoops[index]) &&
@@ -116,6 +136,22 @@ var Eisdiele;
         }
         eating() {
             // code to manage eating
+        }
+        getRandomIce() {
+            // Get a random number of scoops (between 1 and 4)
+            let numScoops = Math.floor(Math.random() * 4) + 1;
+            let scoops = [];
+            // Assign each scoop a random flavour
+            for (let i = 0; i < numScoops; i++) {
+                let randomFlavour = Math.floor(Math.random() * Object.keys(Eisdiele.FLAVOUR).length / 2);
+                scoops.push(randomFlavour);
+            }
+            // Assign a random topping
+            let randomTopping = Math.floor(Math.random() * Object.keys(Eisdiele.TOPPING).length / 2);
+            // Assign a random decoration
+            let randomDecoration = Math.floor(Math.random() * Object.keys(Eisdiele.DECORATION).length / 2);
+            let ice = new Eisdiele.Ice(scoops, randomTopping, randomDecoration);
+            return ice;
         }
         draw() {
             let centerX = this.position.x;

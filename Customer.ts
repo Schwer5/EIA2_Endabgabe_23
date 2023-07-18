@@ -18,9 +18,10 @@ namespace Eisdiele {
 
         constructor() {
             // initialize the variables
-            this.mood = MOOD.OKAY
-            this.velocity = 10;
-            this.waitingTime = 0;
+            this.mood = MOOD.OKAY //give mood okay for the beginning
+            this.velocity = 2; //give velocity two 
+            this.waitingTime = 0; 
+            this.wish = this.getRandomIce() //give him an ice from IceList
         }
 
         // Getters
@@ -110,24 +111,50 @@ namespace Eisdiele {
                 moveVector.x = directionVector.x
                 moveVector.y = directionVector.y
             }
-            if (this.mood != MOOD.ANGRY){
-                this.position = new Vector(currentPosition.x + moveVector.x, currentPosition.y + moveVector.y)
-            } else {
-                this.position = new Vector(currentPosition.x, currentPosition.y - this.velocity)
-            }
+            this.position = new Vector(currentPosition.x + moveVector.x, currentPosition.y + moveVector.y)
         }
 
         public waitingMood(): void {
             this.waitingTime += 1;
-            if (this.waitingTime > 100) {
+            if (this.waitingTime > 1000) {
                 this.lowerMood();
                 this.waitingTime = 0;
             }
         }
 
         public ordering(): void {
-            // code to manage ordering
+            const bubbleWidth = 100;
+            const bubbleHeight = 100;
+            const cornerRadius = 5;
+            const textOffsetX = 10;
+            const textOffsetY = 20;
+            const message = "Bitte ein";
+    
+            // Adjust these to center the bubble on your character
+            const bubbleX = this.position.x - bubbleWidth / 2;
+            const bubbleY = this.position.y - bubbleHeight - 80;
+    
+            // Draw the speech bubble
+            foregroundCtx.beginPath();
+            foregroundCtx.moveTo(bubbleX + cornerRadius, bubbleY);
+            foregroundCtx.arcTo(bubbleX + bubbleWidth, bubbleY, bubbleX + bubbleWidth, bubbleY + bubbleHeight, cornerRadius);
+            foregroundCtx.arcTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight, cornerRadius);
+            foregroundCtx.arcTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY, cornerRadius);
+            foregroundCtx.arcTo(bubbleX, bubbleY, bubbleX + bubbleWidth, bubbleY, cornerRadius);
+            foregroundCtx.closePath();
+    
+            // Fill the bubble
+            foregroundCtx.fillStyle = 'white';
+            foregroundCtx.fill();
+    
+            // Draw the text
+            foregroundCtx.fillStyle = 'black';
+            foregroundCtx.font = '16px Arial';
+            foregroundCtx.fillText(message, bubbleX + textOffsetX, bubbleY + textOffsetY);
+
+            this.wish.draw();
         }
+    
 
         public checkOrder(order: Ice): boolean {
             return this.wish.scoops.every((val, index) => val === order.scoops[index]) &&
@@ -139,7 +166,29 @@ namespace Eisdiele {
             // code to manage eating
         }
 
-        draw() {
+        public getRandomIce() {
+            // Get a random number of scoops (between 1 and 4)
+            let numScoops = Math.floor(Math.random() * 4) + 1;
+            let scoops: FLAVOUR[] = [];
+        
+            // Assign each scoop a random flavour
+            for (let i = 0; i < numScoops; i++) {
+                let randomFlavour = Math.floor(Math.random() * Object.keys(FLAVOUR).length/2);
+                scoops.push(randomFlavour);
+            }
+        
+            // Assign a random topping
+            let randomTopping = Math.floor(Math.random() * Object.keys(TOPPING).length/2);
+        
+            // Assign a random decoration
+            let randomDecoration = Math.floor(Math.random() * Object.keys(DECORATION).length/2);
+        
+            let ice = new Ice(scoops, randomTopping, randomDecoration);
+        
+            return ice;
+        }
+        
+        public draw() {
             let centerX = this.position.x;
             let centerY = this.position.y;
             let radius = 36;

@@ -7,21 +7,37 @@
 var Eisdiele;
 (function (Eisdiele) {
     class CustomerList {
-        _waitingList;
+        _waitingList; //was hat er
         _waitingPosList;
         _eatingList;
         _eatingPosList;
         _leavingList;
+        _leavingPosList;
         _maxSize;
         constructor() {
             let cw = Eisdiele.foregroundCtx.canvas.width;
             let ch = Eisdiele.foregroundCtx.canvas.height;
             this._maxSize = 6;
             this._waitingList = [];
-            this._leavingList = [];
-            this._waitingPosList = [new Eisdiele.Vector(0.95 * cw, 0.43 * ch), new Eisdiele.Vector(0.76 * cw, 0.38 * ch), new Eisdiele.Vector(0.63 * cw, 0.36 * ch), new Eisdiele.Vector(0.48 * cw, 0.27 * ch), new Eisdiele.Vector(0.34 * cw, 0.30 * ch), new Eisdiele.Vector(0.22 * cw, 0.25 * ch)];
+            this._waitingPosList = [
+                new Eisdiele.Vector(0.95 * cw, 0.43 * ch),
+                new Eisdiele.Vector(0.76 * cw, 0.38 * ch),
+                new Eisdiele.Vector(0.63 * cw, 0.36 * ch),
+                new Eisdiele.Vector(0.48 * cw, 0.27 * ch),
+                new Eisdiele.Vector(0.34 * cw, 0.30 * ch),
+                new Eisdiele.Vector(0.22 * cw, 0.25 * ch)
+            ];
             this._eatingList = new Array(6);
-            this._eatingPosList = [new Eisdiele.Vector(0.12 * cw, 0.76 * ch), new Eisdiele.Vector(0.26 * cw, 0.76 * ch), new Eisdiele.Vector(0.39 * cw, 0.76 * ch), new Eisdiele.Vector(0.53 * cw, 0.76 * ch), new Eisdiele.Vector(0.66 * cw, 0.76 * ch), new Eisdiele.Vector(0.80 * cw, 0.76 * ch)];
+            this._eatingPosList = [
+                new Eisdiele.Vector(0.12 * cw, 0.76 * ch),
+                new Eisdiele.Vector(0.27 * cw, 0.76 * ch),
+                new Eisdiele.Vector(0.41 * cw, 0.76 * ch),
+                new Eisdiele.Vector(0.55 * cw, 0.76 * ch),
+                new Eisdiele.Vector(0.70 * cw, 0.76 * ch),
+                new Eisdiele.Vector(0.84 * cw, 0.76 * ch)
+            ];
+            this._leavingList = [];
+            this._leavingPosList = [new Eisdiele.Vector(0.5 * cw, -0.1 * ch), new Eisdiele.Vector(0.1 * cw, 0.3 * ch)];
         }
         // Getters
         get waitingList() {
@@ -38,6 +54,9 @@ var Eisdiele;
         }
         get eatingPosList() {
             return this._eatingPosList;
+        }
+        get leavingPosList() {
+            return this._leavingPosList;
         }
         get maxSize() {
             return this._maxSize;
@@ -59,26 +78,62 @@ var Eisdiele;
             // Generate a random number
             const randomNumber = Math.random();
             // Depending on the value of the randomNumber, add a new customer to the queue
-            if (randomNumber < 0.01) { // adjust this condition to control how often new customers are added
+            if (randomNumber < 0.002) { // adjust this condition to control how often new customers are added
                 this.addCustomer();
             }
             for (let i = 0; i < this.waitingList.length; i++) {
-                this.waitingList[i].updatePosition();
-                this.waitingList[i].waitingMood();
-                this.waitingList[i].draw();
-                if (this.waitingList[i].mood == Eisdiele.MOOD.ANGRY) {
-                    this.leavingList.push(this.waitingList[i]);
-                    this.waitingList;
+                let customer = this.waitingList[i];
+                customer.waitingMood();
+                customer.updatePosition();
+                customer.draw();
+                if (customer.mood == Eisdiele.MOOD.ANGRY) {
+                    customer.targetPosition = this.leavingPosList[0];
+                    this.leavingList.push(customer);
+                    this.waitingList.splice(i, 1);
                 }
             }
             for (let i = 0; i < this.eatingList.length; i++) {
                 if (this.eatingList[i] != null) {
-                    this.eatingList[i].updatePosition();
-                    this.eatingList[i].draw();
+                    let customer = this.eatingList[i];
+                    if (customer.customerIce == null) {
+                        customer.waitingMood();
+                        customer.updatePosition();
+                        customer.draw();
+                        if (customer.mood == Eisdiele.MOOD.ANGRY) {
+                            customer.targetPosition = this.leavingPosList[0];
+                            this.leavingList.push(customer);
+                            delete this.eatingList[i];
+                        }
+                        if (customer.position.equals(customer.targetPosition)) {
+                            customer.ordering();
+                        }
+                    }
+                    else {
+                        if (customer.checkOrder(customer.customerIce)) {
+                            customer.customerIce.draw();
+                            if (customer.waitingTime > 500) {
+                                customer.mood = Eisdiele.MOOD.HAPPY;
+                                customer.targetPosition = this.leavingPosList[1];
+                                this.leavingList.push(customer);
+                                this.eatingList.splice(i, 1);
+                            }
+                        }
+                        else {
+                            customer.mood = Eisdiele.MOOD.ANGRY;
+                            customer.targetPosition = this.leavingPosList[0];
+                            this.leavingList.push(customer);
+                            this.eatingList.splice(i, 1);
+                        }
+                    }
                 }
             }
+            for (let i = 0; i < this.leavingList.length; i++) {
+                let customer = this.leavingList[i];
+                customer.updatePosition();
+                customer.draw();
+            }
+            this.updateTargetPositions();
         }
-        // Functions
         addCustomer() {
             const x = -100;
             const y = window.innerHeight * 0.5;
@@ -96,15 +151,22 @@ var Eisdiele;
             for (let i = 0; i < this.waitingList.length; i++) {
                 this.waitingList[i].targetPosition = this.waitingPosList[i];
             }
+            for (let i = 0; i < this.eatingList.length; i++) {
+                if (this.eatingList[i] != null) {
+                    this.eatingList[i].targetPosition = this.eatingPosList[i];
+                }
+            }
         }
         moveCustomerSeating(seatNumber) {
             if (this.waitingList.length > 0) {
-                let movingCustomer = this.waitingList[0];
-                this.eatingList[seatNumber] = movingCustomer;
-                this.waitingList.shift();
-                movingCustomer.betterMood();
-                this.eatingList[seatNumber].targetPosition = this.eatingPosList[seatNumber];
-                this.updateTargetPositions();
+                if (this.eatingList[seatNumber] == null) {
+                    let movingCustomer = this.waitingList[0];
+                    this.eatingList[seatNumber] = movingCustomer;
+                    this.waitingList.shift();
+                    movingCustomer.betterMood();
+                    this.eatingList[seatNumber].targetPosition = this.eatingPosList[seatNumber];
+                    this.updateTargetPositions();
+                }
             }
         }
         sendToSeat0() {
