@@ -7,6 +7,7 @@
 var Eisdiele;
 (function (Eisdiele) {
     window.addEventListener("load", handleLoad);
+    let data = [];
     let MOOD;
     (function (MOOD) {
         MOOD[MOOD["HAPPY"] = 0] = "HAPPY";
@@ -61,7 +62,10 @@ var Eisdiele;
     }
     Eisdiele.Vector = Vector;
     Eisdiele.images = {};
-    function handleLoad(_event) {
+    async function handleLoad(_event) {
+        let addtask = document.querySelector('#addrecipe');
+        addtask.addEventListener('click', logaddtask);
+        loaddata();
         let backgroundCanvas = document.querySelector("#background"); //get canvas Element from HTML 
         let foregroundCanvas = document.querySelector("#foreground"); //get canvas Element from HTML
         if (!backgroundCanvas)
@@ -98,6 +102,118 @@ var Eisdiele;
         // let testIce = new Ice([FLAVOUR.CHOCOLATE, FLAVOUR.LEMON], TOPPING.CREAM,DECORATION.GLITTER);
         // testIce.draw()
         setInterval(update, 20); //update
+    }
+    async function logaddtask() {
+        const inputTodo = document.querySelector('#inputIce');
+        const inputValue = inputTodo.value;
+        const selectKugel1 = document.querySelector('#selectscoop1');
+        const Kugel1Value = selectKugel1.value;
+        const selectKugel2 = document.querySelector('#selectscoop2');
+        const Kugel2Value = selectKugel2.value;
+        const selectKugel3 = document.querySelector('#selectscoop3');
+        const Kugel3Value = selectKugel3.value;
+        const selectTopping = document.querySelector('#selecttopping');
+        const toppingValue = selectTopping.value;
+        const selectDecoration = document.querySelector('#selectdecoration');
+        const decorationValue = selectDecoration.value;
+        const selectPrice = document.querySelector('#inputPrice');
+        const PriceValue = selectPrice.value;
+        let newid = 0;
+        let idExists = true; //hier wird idExists auf false gesetzt, um zu überprüfen, 
+        while (idExists) { //ob die aktuelle Nummer (newid) einzigartig ist. 
+            newid = newid + 1; //Wir gehen zunächst davon aus, dass sie einzigartig ist, 
+            idExists = false; //indem wir idExists auf false setzen. Dann überprüfen wir das, 
+            for (let docId in data) { //indem wir alle vorhandenen IDs in data durchgehen. Wenn wir eine gleiche ID finden, 
+                let item = data[docId]; //setzen wir idExists auf true, um zu zeigen, dass die aktuelle Nummer doch nicht einzigartig ist.
+                if (item.id == newid) { // Dann suchen wir weiter nach einer einzigartigen Nummer.
+                    idExists = true;
+                }
+            }
+        }
+        const newItem = {
+            id: newid,
+            icetitle: inputValue,
+            Kugel1: Kugel1Value,
+            Kugel2: Kugel2Value,
+            Kugel3: Kugel3Value,
+            Topping: toppingValue,
+            Dekoration: decorationValue,
+            Preis: PriceValue,
+            status: false,
+        };
+        data.push(newItem);
+        createtask(newItem);
+        await fetch(`https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=insert&collection=IceList&data=${JSON.stringify(newItem)}`);
+        inputTodo.value = '';
+        selectKugel1.value = '';
+        selectKugel2.value = '';
+        selectKugel3.value = '';
+        selectTopping.value = '';
+        selectDecoration.value = '';
+    }
+    async function createtask(item) {
+        let newDiv = document.createElement('div');
+        newDiv.classList.add('inputtask');
+        newDiv.innerHTML = `
+            <input type="text" id="inputIce" placeholder="${item.icetitle}">
+            <label for="selectscoop1">Kugel 1</label>
+            <select selectKugel1="Name" id="selectscoop1">
+                <option value="" selected>${item.Kugel1}</option>
+            </select></br>
+            <label for="selectscoop2">Kugel 2</label>
+            <select selectKugel2="Name" id="selectscoop2">
+                <option value="" selected>${item.Kugel2}</option>
+            </select></br>
+            <label for="selectscoop3">Kugel 3</label>
+            <select selectKugel2="Name" id="selectscoop3">
+            <option value="" selected>${item.Kugel3}</option>
+            </select></br>
+            <label for="selecttopping">Topping</label>
+            <select selecttopping="Name" id="selecttopping">
+            <option value="" selected>${item.Topping}</option>
+            </select></br>
+            <label for="selectdecoration">Dekoration</label>
+            <select selectdecoration="Name" id="selectdecoration">
+            <option value="" selected>${item.Dekoration}</option>
+            </select>
+    
+
+            <button id="deletetask"><i class="fas fa-trash"></i></button>
+        `;
+        let deleteButton = newDiv.querySelector('#deletetask');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function (event) {
+                deletetaskdom(event);
+                deleteDataFromServer(item.id);
+            });
+        }
+        let container = document.querySelector('#task-container');
+        container && container.appendChild(newDiv);
+    }
+    async function loaddata() {
+        const response = await fetch("https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=find&collection=IceList");
+        const dataJSON = await response.json();
+        data = dataJSON.data;
+        for (let docId in data) {
+            let item = data[docId];
+            createtask(item);
+        }
+    }
+    function deletetaskdom(event) {
+        const target = event.target;
+        const divToDelete = target.closest('div');
+        divToDelete && divToDelete.remove();
+    }
+    async function deleteDataFromServer(id) {
+        let dataBaseIndex = "";
+        for (let docId in data) { //wir gehen durch jede docId(z.B.644cdd7d5caa0) in data durch 
+            let item = data[docId]; // wir holen uns das item für eine docId 
+            if (item.id == id) { // wir schauen ob das item mit docId die gesuchte item.id(man geht in ein item und vergleicht dort die "id") hat
+                dataBaseIndex = docId; // wenn wir die übereinstimmende id gefunden haben, speichern wir diese in dataBaseIndex
+            }
+            const deleteUrl = `https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=delete&collection=IceList&id=${dataBaseIndex}`;
+            await fetch(deleteUrl);
+        }
     }
     function update() {
         Eisdiele.foregroundCtx.clearRect(0, 0, Eisdiele.foregroundCtx.canvas.width, Eisdiele.foregroundCtx.canvas.height); //clear canvas foreground for moving objects

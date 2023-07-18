@@ -7,6 +7,20 @@
 namespace Eisdiele {
     window.addEventListener("load", handleLoad);
 
+    interface Item {
+        id: number;
+        icetitle: string;
+        Kugel1: string;
+        Kugel2: string;
+        Kugel3: string;
+        Topping: string;
+        Dekoration: string;
+        Preis: number;
+        status: boolean;
+    }
+
+    let data: Item[] = [];
+
     export enum MOOD {
         HAPPY,
         OKAY,
@@ -67,9 +81,14 @@ namespace Eisdiele {
     export let foregroundCtx: CanvasRenderingContext2D;
 
     export let Customers: CustomerList;
-    export let images: {[key: string]: HTMLImageElement} = {};
+    export let images: { [key: string]: HTMLImageElement } = {};
 
-    function handleLoad(_event: Event): void {
+    async function handleLoad(_event: Event) {
+
+        let addtask: HTMLElement = <HTMLElement>document.querySelector('#addrecipe');
+        addtask.addEventListener('click', logaddtask);
+        loaddata();
+
 
         let backgroundCanvas: HTMLCanvasElement | null = document.querySelector("#background") as HTMLCanvasElement; //get canvas Element from HTML 
         let foregroundCanvas: HTMLCanvasElement | null = document.querySelector("#foreground") as HTMLCanvasElement; //get canvas Element from HTML
@@ -114,6 +133,137 @@ namespace Eisdiele {
         setInterval(update, 20); //update
     }
 
+    async function logaddtask(): Promise<void> {
+
+        const inputTodo = document.querySelector('#inputIce') as HTMLInputElement;
+        const inputValue = inputTodo.value;
+
+        const selectKugel1 = document.querySelector('#selectscoop1') as HTMLSelectElement;
+        const Kugel1Value = selectKugel1.value;
+
+        const selectKugel2 = document.querySelector('#selectscoop2') as HTMLSelectElement;
+        const Kugel2Value = selectKugel2.value;
+
+        const selectKugel3 = document.querySelector('#selectscoop3') as HTMLSelectElement;
+        const Kugel3Value = selectKugel3.value;
+
+        const selectTopping = document.querySelector('#selecttopping') as HTMLSelectElement;
+        const toppingValue = selectTopping.value;
+
+        const selectDecoration = document.querySelector('#selectdecoration') as HTMLSelectElement;
+        const decorationValue = selectDecoration.value;
+
+        const selectPrice = document.querySelector('#inputPrice') as HTMLInputElement;
+        const PriceValue = selectPrice.value as number;
+
+
+        let newid = 0;
+        let idExists = true//hier wird idExists auf false gesetzt, um zu überprüfen, 
+        while (idExists) {//ob die aktuelle Nummer (newid) einzigartig ist. 
+            newid = newid + 1//Wir gehen zunächst davon aus, dass sie einzigartig ist, 
+            idExists = false//indem wir idExists auf false setzen. Dann überprüfen wir das, 
+            for (let docId in data) {//indem wir alle vorhandenen IDs in data durchgehen. Wenn wir eine gleiche ID finden, 
+                let item = data[docId]//setzen wir idExists auf true, um zu zeigen, dass die aktuelle Nummer doch nicht einzigartig ist.
+                if (item.id == newid) {// Dann suchen wir weiter nach einer einzigartigen Nummer.
+                    idExists = true;
+                }
+            }
+        }
+
+        const newItem: Item = {
+            id: newid,
+            icetitle: inputValue,
+            Kugel1: Kugel1Value,
+            Kugel2: Kugel2Value,
+            Kugel3: Kugel3Value,
+            Topping: toppingValue,
+            Dekoration: decorationValue,
+            Preis: PriceValue,
+            status: false,
+        };
+        data.push(newItem);
+
+        createtask(newItem);
+        await fetch(`https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=insert&collection=IceList&data=${JSON.stringify(newItem)}`);
+
+        inputTodo.value = '';
+        selectKugel1.value = '';
+        selectKugel2.value = '';
+        selectKugel3.value = '';
+        selectTopping.value = '';
+        selectDecoration.value = '';
+    }
+
+    async function createtask(item: Item): Promise<void> {
+        let newDiv = document.createElement('div');
+        newDiv.classList.add('inputtask')
+        newDiv.innerHTML = `
+            <input type="text" id="inputIce" placeholder="${item.icetitle}">
+            <label for="selectscoop1">Kugel 1</label>
+            <select selectKugel1="Name" id="selectscoop1">
+                <option value="" selected>${item.Kugel1}</option>
+            </select></br>
+            <label for="selectscoop2">Kugel 2</label>
+            <select selectKugel2="Name" id="selectscoop2">
+                <option value="" selected>${item.Kugel2}</option>
+            </select></br>
+            <label for="selectscoop3">Kugel 3</label>
+            <select selectKugel2="Name" id="selectscoop3">
+            <option value="" selected>${item.Kugel3}</option>
+            </select></br>
+            <label for="selecttopping">Topping</label>
+            <select selecttopping="Name" id="selecttopping">
+            <option value="" selected>${item.Topping}</option>
+            </select></br>
+            <label for="selectdecoration">Dekoration</label>
+            <select selectdecoration="Name" id="selectdecoration">
+            <option value="" selected>${item.Dekoration}</option>
+            </select>
+    
+
+            <button id="deletetask"><i class="fas fa-trash"></i></button>
+        `;
+
+        let deleteButton = newDiv.querySelector('#deletetask');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', function (event) {
+                deletetaskdom(event);
+                deleteDataFromServer(item.id);
+            });
+        }
+
+        let container = document.querySelector('#task-container');
+        container && container.appendChild(newDiv);
+    }
+    async function loaddata(): Promise<void> {
+        const response = await fetch("https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=find&collection=IceList");
+        const dataJSON = await response.json();
+        data = dataJSON.data;
+        for (let docId in data) {
+            let item = data[docId]
+
+            createtask(item);
+        }
+    }
+
+    function deletetaskdom(event: Event): void {
+        const target = event.target as HTMLElement;
+        const divToDelete = target.closest('div');
+        divToDelete && divToDelete.remove();
+    }
+
+    async function deleteDataFromServer(id: number): Promise<void> {
+        let dataBaseIndex = ""
+        for (let docId in data) { //wir gehen durch jede docId(z.B.644cdd7d5caa0) in data durch 
+            let item = data[docId] // wir holen uns das item für eine docId 
+            if (item.id == id) {    // wir schauen ob das item mit docId die gesuchte item.id(man geht in ein item und vergleicht dort die "id") hat
+                dataBaseIndex = docId // wenn wir die übereinstimmende id gefunden haben, speichern wir diese in dataBaseIndex
+            }
+            const deleteUrl = `https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=delete&collection=IceList&id=${dataBaseIndex}`;
+            await fetch(deleteUrl);
+        }
+    }
+
     function update(): void {
         foregroundCtx.clearRect(0, 0, foregroundCtx.canvas.width, foregroundCtx.canvas.height); //clear canvas foreground for moving objects
         Customers.update();
@@ -139,7 +289,7 @@ namespace Eisdiele {
         drawSeat(new Vector(0.84 * cw, 0.76 * ch));
         drawCounter(new Vector(0.05 * cw, 0.8 * ch));
     }
-    function drawSeat(position: Vector):void{
+    function drawSeat(position: Vector): void {
         backgroundCtx.save();
         // backgroundCtx.translate(position.x, position.y);
 
@@ -155,16 +305,16 @@ namespace Eisdiele {
         backgroundCtx.closePath();
         backgroundCtx.restore();
     }
-    function drawCounter(position:Vector):void{
+    function drawCounter(position: Vector): void {
         let bw = backgroundCtx.canvas.width;
         let bh = backgroundCtx.canvas.height;
         backgroundCtx.save();
         backgroundCtx.translate(position.x, position.y);
         backgroundCtx.beginPath();
-        backgroundCtx.moveTo(0,0); 
-        backgroundCtx.lineTo(0.9*bw,0);
-        backgroundCtx.lineTo(0.9*bw, 0.1*bh);
-        backgroundCtx.lineTo(0, 0.1*bh);
+        backgroundCtx.moveTo(0, 0);
+        backgroundCtx.lineTo(0.9 * bw, 0);
+        backgroundCtx.lineTo(0.9 * bw, 0.1 * bh);
+        backgroundCtx.lineTo(0, 0.1 * bh);
         backgroundCtx.closePath();
         backgroundCtx.fillStyle = "brown";
         backgroundCtx.fill();
