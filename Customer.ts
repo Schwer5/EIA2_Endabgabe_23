@@ -97,7 +97,7 @@ namespace Eisdiele {
             this._eatingTime = value;
         }
 
-        // Functions
+
         public updatePosition(): void {
             let currentPosition = this.position;
             let directionVector = new Vector(this.targetPosition.x - currentPosition.x, this.targetPosition.y - currentPosition.y)

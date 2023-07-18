@@ -95,35 +95,16 @@ var Eisdiele;
             for (let i = 0; i < this.eatingList.length; i++) {
                 if (this.eatingList[i] != null) {
                     let customer = this.eatingList[i];
-                    if (customer.customerIce == null) {
-                        customer.waitingMood();
-                        customer.updatePosition();
-                        customer.draw();
-                        if (customer.mood == Eisdiele.MOOD.ANGRY) {
-                            customer.targetPosition = this.leavingPosList[0];
-                            this.leavingList.push(customer);
-                            delete this.eatingList[i];
-                        }
-                        if (customer.position.equals(customer.targetPosition)) {
-                            customer.ordering();
-                        }
+                    customer.waitingMood();
+                    customer.updatePosition();
+                    customer.draw();
+                    if (customer.mood == Eisdiele.MOOD.ANGRY) {
+                        customer.targetPosition = this.leavingPosList[0];
+                        this.leavingList.push(customer);
+                        delete this.eatingList[i];
                     }
-                    else {
-                        if (customer.checkOrder(customer.customerIce)) {
-                            // customer.customerIce.draw()
-                            if (customer.waitingTime > 500) {
-                                customer.mood = Eisdiele.MOOD.HAPPY;
-                                customer.targetPosition = this.leavingPosList[1];
-                                this.leavingList.push(customer);
-                                this.eatingList.splice(i, 1);
-                            }
-                        }
-                        else {
-                            customer.mood = Eisdiele.MOOD.ANGRY;
-                            customer.targetPosition = this.leavingPosList[0];
-                            this.leavingList.push(customer);
-                            this.eatingList.splice(i, 1);
-                        }
+                    if (customer.position.equals(customer.targetPosition)) {
+                        customer.ordering();
                     }
                 }
             }

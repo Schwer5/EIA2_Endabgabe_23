@@ -78,7 +78,6 @@ var Eisdiele;
         set eatingTime(value) {
             this._eatingTime = value;
         }
-        // Functions
         updatePosition() {
             let currentPosition = this.position;
             let directionVector = new Eisdiele.Vector(this.targetPosition.x - currentPosition.x, this.targetPosition.y - currentPosition.y);

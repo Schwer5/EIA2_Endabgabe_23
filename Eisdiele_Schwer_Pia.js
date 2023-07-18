@@ -38,8 +38,8 @@ var Eisdiele;
         DECORATION["GLITTER"] = "glitter";
     })(DECORATION = Eisdiele.DECORATION || (Eisdiele.DECORATION = {}));
     class Vector {
-        _x;
-        _y;
+        _x; //enthält Eigenschaften für die x- und y-Koordinaten des Vektors sowie Methoden 
+        _y; //zum Lesen und Ändern dieser Eigenschaften
         constructor(x = 0, y = 0) {
             this._x = x;
             this._y = y;
@@ -63,8 +63,8 @@ var Eisdiele;
         }
     }
     Eisdiele.Vector = Vector;
-    Eisdiele.images = {};
-    Eisdiele.globalData = [];
+    Eisdiele.images = {}; //Objekt zum Speichern von Bildern
+    Eisdiele.globalData = []; //eine Liste von Eisprodukten
     Eisdiele.globalScore = 0;
     async function handleLoad(_event) {
         loaddata();
@@ -126,7 +126,7 @@ var Eisdiele;
         drawBackground(); //draw static background
         // let testIce = new Ice([FLAVOUR.CHOCOLATE, FLAVOUR.LEMON], TOPPING.CREAM,DECORATION.GLITTER);
         // testIce.draw()
-        setInterval(update, 20); //update
+        setInterval(update, 20); //Funktion wird in regelmäßigen Abständen aufgerufen, um die Anzeige der Eisdiele zu aktualisieren. Sie löscht den Vordergrund-Canvas, aktualisiert den Zustand der Kunden und zeichnet das Eis auf dem Vordergrund-Canvas.
     }
     async function logaddtask() {
         const inputTodo = document.querySelector('#inputIce');

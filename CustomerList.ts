@@ -106,35 +106,19 @@ namespace Eisdiele {
             for (let i = 0; i < this.eatingList.length; i++) {
                 if (this.eatingList[i] != null) {
                     let customer = this.eatingList[i]
-                    if (customer.customerIce == null) {
-                        customer.waitingMood()
-                        customer.updatePosition()
-                        customer.draw()
-                        if (customer.mood == MOOD.ANGRY) {
-                            customer.targetPosition = this.leavingPosList[0]
-                            this.leavingList.push(customer)
-                            delete this.eatingList[i]
-                        }
-                        if (customer.position.equals(customer.targetPosition))
-                        {
-                            customer.ordering()
-                        }
-                    } else {
-                        if (customer.checkOrder(customer.customerIce)) {
-                            // customer.customerIce.draw()
-                            if (customer.waitingTime > 500) {
-                                customer.mood = MOOD.HAPPY
-                                customer.targetPosition = this.leavingPosList[1]
-                                this.leavingList.push(customer)
-                                this.eatingList.splice(i, 1)
-                            }
-                        } else {
-                            customer.mood = MOOD.ANGRY
-                            customer.targetPosition = this.leavingPosList[0]
-                            this.leavingList.push(customer)
-                            this.eatingList.splice(i, 1)
-                        }
+                    customer.waitingMood()
+                    customer.updatePosition()
+                    customer.draw()
+                    if (customer.mood == MOOD.ANGRY) {
+                        customer.targetPosition = this.leavingPosList[0]
+                        this.leavingList.push(customer)
+                        delete this.eatingList[i]
                     }
+                    if (customer.position.equals(customer.targetPosition)) {
+                        customer.ordering()
+                    }
+
+
                 }
             }
 
@@ -186,7 +170,7 @@ namespace Eisdiele {
                     this.updateTargetPositions();
                 } else {
                     let customer = this.eatingList[seatNumber];
-                    if (customer.checkOrder(globalIce)){
+                    if (customer.checkOrder(globalIce)) {
                         customer.mood = MOOD.HAPPY
                         globalScore += customer.wish.price;
                         customer.targetPosition = this.leavingPosList[1]

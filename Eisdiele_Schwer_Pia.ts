@@ -48,8 +48,8 @@ namespace Eisdiele {
     }
     
     export class Vector {
-        private _x: number;
-        private _y: number;
+        private _x: number; //enthält Eigenschaften für die x- und y-Koordinaten des Vektors sowie Methoden 
+        private _y: number; //zum Lesen und Ändern dieser Eigenschaften
         
         constructor(x: number = 0, y: number = 0) {
             this._x = x;
@@ -83,9 +83,9 @@ namespace Eisdiele {
     export let foregroundCtx: CanvasRenderingContext2D;
     
     export let Customers: CustomerList;
-    export let images: { [key: string]: HTMLImageElement } = {};
-    export let globalData: Item[] = [];
-    export let globalIce: any;
+    export let images: { [key: string]: HTMLImageElement } = {}; //Objekt zum Speichern von Bildern
+    export let globalData: Item[] = []; //eine Liste von Eisprodukten
+    export let globalIce: any; //ein einzelnes Eisobjekt
 
     export let globalScore: number = 0;
     
@@ -158,7 +158,7 @@ namespace Eisdiele {
         // let testIce = new Ice([FLAVOUR.CHOCOLATE, FLAVOUR.LEMON], TOPPING.CREAM,DECORATION.GLITTER);
         // testIce.draw()
 
-        setInterval(update, 20); //update
+        setInterval(update, 20); //Funktion wird in regelmäßigen Abständen aufgerufen, um die Anzeige der Eisdiele zu aktualisieren. Sie löscht den Vordergrund-Canvas, aktualisiert den Zustand der Kunden und zeichnet das Eis auf dem Vordergrund-Canvas.
     }
 
     async function logaddtask(): Promise<void> {
