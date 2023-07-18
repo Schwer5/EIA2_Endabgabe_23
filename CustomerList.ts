@@ -38,7 +38,7 @@ namespace Eisdiele {
             ];
 
             this._leavingList = [];
-            this._leavingPosList = [new Vector(0.5 * cw, -0.1 * ch), new Vector(0.1 * cw, 0.3 * ch)];
+            this._leavingPosList = [new Vector(0.5 * cw, -0.1 * ch), new Vector(-0.1 * cw, 0.5 * ch)];
         }
 
         // Getters
@@ -121,7 +121,7 @@ namespace Eisdiele {
                         }
                     } else {
                         if (customer.checkOrder(customer.customerIce)) {
-                            customer.customerIce.draw()
+                            // customer.customerIce.draw()
                             if (customer.waitingTime > 500) {
                                 customer.mood = MOOD.HAPPY
                                 customer.targetPosition = this.leavingPosList[1]
@@ -147,7 +147,7 @@ namespace Eisdiele {
             this.updateTargetPositions()
         }
 
-        public addCustomer(): void {
+        public async addCustomer(): Promise<void> {
             const x = -100;
             const y = window.innerHeight * 0.5;
 
@@ -159,6 +159,7 @@ namespace Eisdiele {
                 let currentSize: number = this.waitingList.length;
                 this.waitingList.push(newCustomer);
                 this.waitingList[currentSize].targetPosition = this.waitingPosList[currentSize];
+                newCustomer.wish = await newCustomer.getRandomIce();
             }
         }
 
@@ -183,6 +184,23 @@ namespace Eisdiele {
                     this.eatingList[seatNumber].targetPosition = this.eatingPosList[seatNumber];
 
                     this.updateTargetPositions();
+                } else {
+                    let customer = this.eatingList[seatNumber];
+                    if (customer.checkOrder(globalIce)){
+                        customer.mood = MOOD.HAPPY
+                        globalScore += customer.wish.price;
+                        customer.targetPosition = this.leavingPosList[1]
+                        this.leavingList.push(customer)
+                        delete this.eatingList[seatNumber]
+                        document.getElementById("counter")!.innerText = '€' + globalScore;
+                    } else {
+                        customer.mood = MOOD.ANGRY
+                        customer.targetPosition = this.leavingPosList[0]
+                        this.leavingList.push(customer)
+                        delete this.eatingList[seatNumber]
+                    }
+                    globalIce = new Ice([FLAVOUR.NONE, FLAVOUR.NONE, FLAVOUR.NONE], TOPPING.NONE, DECORATION.NONE);
+
                 }
             }
         }

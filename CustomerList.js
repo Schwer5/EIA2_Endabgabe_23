@@ -37,7 +37,7 @@ var Eisdiele;
                 new Eisdiele.Vector(0.84 * cw, 0.76 * ch)
             ];
             this._leavingList = [];
-            this._leavingPosList = [new Eisdiele.Vector(0.5 * cw, -0.1 * ch), new Eisdiele.Vector(0.1 * cw, 0.3 * ch)];
+            this._leavingPosList = [new Eisdiele.Vector(0.5 * cw, -0.1 * ch), new Eisdiele.Vector(-0.1 * cw, 0.5 * ch)];
         }
         // Getters
         get waitingList() {
@@ -110,7 +110,7 @@ var Eisdiele;
                     }
                     else {
                         if (customer.checkOrder(customer.customerIce)) {
-                            customer.customerIce.draw();
+                            // customer.customerIce.draw()
                             if (customer.waitingTime > 500) {
                                 customer.mood = Eisdiele.MOOD.HAPPY;
                                 customer.targetPosition = this.leavingPosList[1];
@@ -134,7 +134,7 @@ var Eisdiele;
             }
             this.updateTargetPositions();
         }
-        addCustomer() {
+        async addCustomer() {
             const x = -100;
             const y = window.innerHeight * 0.5;
             // Create a new customer with the generated position
@@ -145,6 +145,7 @@ var Eisdiele;
                 let currentSize = this.waitingList.length;
                 this.waitingList.push(newCustomer);
                 this.waitingList[currentSize].targetPosition = this.waitingPosList[currentSize];
+                newCustomer.wish = await newCustomer.getRandomIce();
             }
         }
         updateTargetPositions() {
@@ -166,6 +167,24 @@ var Eisdiele;
                     movingCustomer.betterMood();
                     this.eatingList[seatNumber].targetPosition = this.eatingPosList[seatNumber];
                     this.updateTargetPositions();
+                }
+                else {
+                    let customer = this.eatingList[seatNumber];
+                    if (customer.checkOrder(Eisdiele.globalIce)) {
+                        customer.mood = Eisdiele.MOOD.HAPPY;
+                        Eisdiele.globalScore += customer.wish.price;
+                        customer.targetPosition = this.leavingPosList[1];
+                        this.leavingList.push(customer);
+                        delete this.eatingList[seatNumber];
+                        document.getElementById("counter").innerText = '€' + Eisdiele.globalScore;
+                    }
+                    else {
+                        customer.mood = Eisdiele.MOOD.ANGRY;
+                        customer.targetPosition = this.leavingPosList[0];
+                        this.leavingList.push(customer);
+                        delete this.eatingList[seatNumber];
+                    }
+                    Eisdiele.globalIce = new Eisdiele.Ice([Eisdiele.FLAVOUR.NONE, Eisdiele.FLAVOUR.NONE, Eisdiele.FLAVOUR.NONE], Eisdiele.TOPPING.NONE, Eisdiele.DECORATION.NONE);
                 }
             }
         }

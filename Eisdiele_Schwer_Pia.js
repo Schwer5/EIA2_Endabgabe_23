@@ -7,7 +7,6 @@
 var Eisdiele;
 (function (Eisdiele) {
     window.addEventListener("load", handleLoad);
-    let data = [];
     let MOOD;
     (function (MOOD) {
         MOOD[MOOD["HAPPY"] = 0] = "HAPPY";
@@ -18,22 +17,25 @@ var Eisdiele;
     })(MOOD = Eisdiele.MOOD || (Eisdiele.MOOD = {}));
     let FLAVOUR;
     (function (FLAVOUR) {
-        FLAVOUR[FLAVOUR["STRAWBERRY"] = 0] = "STRAWBERRY";
-        FLAVOUR[FLAVOUR["CHOCOLATE"] = 1] = "CHOCOLATE";
-        FLAVOUR[FLAVOUR["LEMON"] = 2] = "LEMON";
-        FLAVOUR[FLAVOUR["SMURF"] = 3] = "SMURF";
+        FLAVOUR["NONE"] = "";
+        FLAVOUR["STRAWBERRY"] = "strawberry";
+        FLAVOUR["CHOCOLATE"] = "chocolate";
+        FLAVOUR["LEMON"] = "lemon";
+        FLAVOUR["SMURF"] = "smurf";
     })(FLAVOUR = Eisdiele.FLAVOUR || (Eisdiele.FLAVOUR = {}));
     let TOPPING;
     (function (TOPPING) {
-        TOPPING[TOPPING["CREAM"] = 0] = "CREAM";
-        TOPPING[TOPPING["FRUIT"] = 1] = "FRUIT";
+        TOPPING["NONE"] = "";
+        TOPPING["CREAM"] = "cream";
+        TOPPING["FRUIT"] = "fruit";
     })(TOPPING = Eisdiele.TOPPING || (Eisdiele.TOPPING = {}));
     let DECORATION;
     (function (DECORATION) {
-        DECORATION[DECORATION["CHERRY"] = 0] = "CHERRY";
-        DECORATION[DECORATION["CHOCOSAUCE"] = 1] = "CHOCOSAUCE";
-        DECORATION[DECORATION["SPRINKLES"] = 2] = "SPRINKLES";
-        DECORATION[DECORATION["GLITTER"] = 3] = "GLITTER";
+        DECORATION["NONE"] = "";
+        DECORATION["CHERRY"] = "cherry";
+        DECORATION["CHOCOSAUCE"] = "chocosauce";
+        DECORATION["SPRINKLES"] = "sprinkles";
+        DECORATION["GLITTER"] = "glitter";
     })(DECORATION = Eisdiele.DECORATION || (Eisdiele.DECORATION = {}));
     class Vector {
         _x;
@@ -62,10 +64,12 @@ var Eisdiele;
     }
     Eisdiele.Vector = Vector;
     Eisdiele.images = {};
+    Eisdiele.globalData = [];
+    Eisdiele.globalScore = 0;
     async function handleLoad(_event) {
+        loaddata();
         let addtask = document.querySelector('#addrecipe');
         addtask.addEventListener('click', logaddtask);
-        loaddata();
         let backgroundCanvas = document.querySelector("#background"); //get canvas Element from HTML 
         let foregroundCanvas = document.querySelector("#foreground"); //get canvas Element from HTML
         if (!backgroundCanvas)
@@ -79,6 +83,7 @@ var Eisdiele;
         Eisdiele.backgroundCtx = backgroundCanvas.getContext('2d'); //get canvas rendering context
         Eisdiele.foregroundCtx = foregroundCanvas.getContext('2d');
         Eisdiele.Customers = new Eisdiele.CustomerList();
+        Eisdiele.globalIce = new Eisdiele.Ice([FLAVOUR.NONE, FLAVOUR.NONE, FLAVOUR.NONE], TOPPING.NONE, DECORATION.NONE);
         Eisdiele.Customers.addCustomer();
         let seat0 = document.querySelector("#seat0"); //select divs from html & add click event Listener
         seat0.addEventListener("click", Eisdiele.Customers.sendToSeat0);
@@ -92,6 +97,26 @@ var Eisdiele;
         seat4.addEventListener("click", Eisdiele.Customers.sendToSeat4);
         let seat5 = document.querySelector("#seat5");
         seat5.addEventListener("click", Eisdiele.Customers.sendToSeat5);
+        let fruit = document.querySelector("#fruit");
+        fruit.addEventListener("click", addToIce_fruit);
+        let cream = document.querySelector("#cream");
+        cream.addEventListener("click", addToIce_cream);
+        let strawberry = document.querySelector("#strawberry");
+        strawberry.addEventListener("click", addToIce_strawberry);
+        let chocolate = document.querySelector("#chocolate");
+        chocolate.addEventListener("click", addToIce_chocolate);
+        let lemon = document.querySelector("#lemon");
+        lemon.addEventListener("click", addToIce_lemon);
+        let smurf = document.querySelector("#smurf");
+        smurf.addEventListener("click", addToIce_smurf);
+        let cherry = document.querySelector("#cherry");
+        cherry.addEventListener("click", addToIce_cherry);
+        let chocosauce = document.querySelector("#chocosauce");
+        chocosauce.addEventListener("click", addToIce_chocosauce);
+        let sprinkles = document.querySelector("#sprinkles");
+        sprinkles.addEventListener("click", addToIce_sprinkles);
+        let glitter = document.querySelector("#glitter");
+        glitter.addEventListener("click", addToIce_glitter);
         loadImage("images/fruit.png", "fruit"); //give Picture Data a name
         loadImage("images/cream.png", "cream");
         loadImage("images/cherry.png", "cherry");
@@ -117,14 +142,14 @@ var Eisdiele;
         const selectDecoration = document.querySelector('#selectdecoration');
         const decorationValue = selectDecoration.value;
         const selectPrice = document.querySelector('#inputPrice');
-        const PriceValue = selectPrice.value;
+        const PriceValue = parseInt(selectPrice.value);
         let newid = 0;
         let idExists = true; //hier wird idExists auf false gesetzt, um zu überprüfen, 
         while (idExists) { //ob die aktuelle Nummer (newid) einzigartig ist. 
             newid = newid + 1; //Wir gehen zunächst davon aus, dass sie einzigartig ist, 
             idExists = false; //indem wir idExists auf false setzen. Dann überprüfen wir das, 
-            for (let docId in data) { //indem wir alle vorhandenen IDs in data durchgehen. Wenn wir eine gleiche ID finden, 
-                let item = data[docId]; //setzen wir idExists auf true, um zu zeigen, dass die aktuelle Nummer doch nicht einzigartig ist.
+            for (let docId in Eisdiele.globalData) { //indem wir alle vorhandenen IDs in data durchgehen. Wenn wir eine gleiche ID finden, 
+                let item = Eisdiele.globalData[docId]; //setzen wir idExists auf true, um zu zeigen, dass die aktuelle Nummer doch nicht einzigartig ist.
                 if (item.id == newid) { // Dann suchen wir weiter nach einer einzigartigen Nummer.
                     idExists = true;
                 }
@@ -139,9 +164,8 @@ var Eisdiele;
             Topping: toppingValue,
             Dekoration: decorationValue,
             Preis: PriceValue,
-            status: false,
         };
-        data.push(newItem);
+        Eisdiele.globalData.push(newItem);
         createtask(newItem);
         await fetch(`https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=insert&collection=IceList&data=${JSON.stringify(newItem)}`);
         inputTodo.value = '';
@@ -150,35 +174,20 @@ var Eisdiele;
         selectKugel3.value = '';
         selectTopping.value = '';
         selectDecoration.value = '';
+        selectPrice.value = '';
     }
     async function createtask(item) {
         let newDiv = document.createElement('div');
         newDiv.classList.add('inputtask');
         newDiv.innerHTML = `
-            <input type="text" id="inputIce" placeholder="${item.icetitle}">
-            <label for="selectscoop1">Kugel 1</label>
-            <select selectKugel1="Name" id="selectscoop1">
-                <option value="" selected>${item.Kugel1}</option>
-            </select></br>
-            <label for="selectscoop2">Kugel 2</label>
-            <select selectKugel2="Name" id="selectscoop2">
-                <option value="" selected>${item.Kugel2}</option>
-            </select></br>
-            <label for="selectscoop3">Kugel 3</label>
-            <select selectKugel2="Name" id="selectscoop3">
-            <option value="" selected>${item.Kugel3}</option>
-            </select></br>
-            <label for="selecttopping">Topping</label>
-            <select selecttopping="Name" id="selecttopping">
-            <option value="" selected>${item.Topping}</option>
-            </select></br>
-            <label for="selectdecoration">Dekoration</label>
-            <select selectdecoration="Name" id="selectdecoration">
-            <option value="" selected>${item.Dekoration}</option>
-            </select>
-    
-
-            <button id="deletetask"><i class="fas fa-trash"></i></button>
+        <p><strong>${item.icetitle}</strong></p>
+        Kugel 1: <span id="scoop1">${item.Kugel1}</span></br>
+        Kugel 2: <span id="scoop2">${item.Kugel2}</span></br>
+        Kugel 3: <span id="scoop3">${item.Kugel3}</span></br>
+        Topping: <span id="topping">${item.Topping}</span></br>
+        Dekoration: <span id="decoration">${item.Dekoration}</span>
+        Preis: <span id="price">${item.Preis}</span>
+        <button id="deletetask"><i class="fas fa-trash"></i></button>
         `;
         let deleteButton = newDiv.querySelector('#deletetask');
         if (deleteButton) {
@@ -193,11 +202,74 @@ var Eisdiele;
     async function loaddata() {
         const response = await fetch("https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=find&collection=IceList");
         const dataJSON = await response.json();
-        data = dataJSON.data;
+        let data = dataJSON.data;
         for (let docId in data) {
             let item = data[docId];
+            Eisdiele.globalData.push(item);
             createtask(item);
         }
+    }
+    function addToIce_fruit() {
+        Eisdiele.globalIce.topping = TOPPING.FRUIT;
+    }
+    function addToIce_cream() {
+        Eisdiele.globalIce.topping = TOPPING.CREAM;
+    }
+    function addToIce_strawberry() {
+        if (Eisdiele.globalIce.scoops[0] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[0] = FLAVOUR.STRAWBERRY;
+        }
+        else if (Eisdiele.globalIce.scoops[1] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[1] = FLAVOUR.STRAWBERRY;
+        }
+        else if (Eisdiele.globalIce.scoops[2] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[2] = FLAVOUR.STRAWBERRY;
+        }
+    }
+    function addToIce_chocolate() {
+        if (Eisdiele.globalIce.scoops[0] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[0] = FLAVOUR.CHOCOLATE;
+        }
+        else if (Eisdiele.globalIce.scoops[1] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[1] = FLAVOUR.CHOCOLATE;
+        }
+        else if (Eisdiele.globalIce.scoops[2] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[2] = FLAVOUR.CHOCOLATE;
+        }
+    }
+    function addToIce_lemon() {
+        if (Eisdiele.globalIce.scoops[0] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[0] = FLAVOUR.LEMON;
+        }
+        else if (Eisdiele.globalIce.scoops[1] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[1] = FLAVOUR.LEMON;
+        }
+        else if (Eisdiele.globalIce.scoops[2] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[2] = FLAVOUR.LEMON;
+        }
+    }
+    function addToIce_smurf() {
+        if (Eisdiele.globalIce.scoops[0] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[0] = FLAVOUR.SMURF;
+        }
+        else if (Eisdiele.globalIce.scoops[1] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[1] = FLAVOUR.SMURF;
+        }
+        else if (Eisdiele.globalIce.scoops[2] == FLAVOUR.NONE) {
+            Eisdiele.globalIce.scoops[2] = FLAVOUR.SMURF;
+        }
+    }
+    function addToIce_cherry() {
+        Eisdiele.globalIce.decoration = DECORATION.CHERRY;
+    }
+    function addToIce_chocosauce() {
+        Eisdiele.globalIce.decoration = DECORATION.CHOCOSAUCE;
+    }
+    function addToIce_sprinkles() {
+        Eisdiele.globalIce.decoration = DECORATION.SPRINKLES;
+    }
+    function addToIce_glitter() {
+        Eisdiele.globalIce.decoration = DECORATION.GLITTER;
     }
     function deletetaskdom(event) {
         const target = event.target;
@@ -205,19 +277,20 @@ var Eisdiele;
         divToDelete && divToDelete.remove();
     }
     async function deleteDataFromServer(id) {
-        let dataBaseIndex = "";
-        for (let docId in data) { //wir gehen durch jede docId(z.B.644cdd7d5caa0) in data durch 
-            let item = data[docId]; // wir holen uns das item für eine docId 
-            if (item.id == id) { // wir schauen ob das item mit docId die gesuchte item.id(man geht in ein item und vergleicht dort die "id") hat
-                dataBaseIndex = docId; // wenn wir die übereinstimmende id gefunden haben, speichern wir diese in dataBaseIndex
+        for (let i = 0; i < Eisdiele.globalData.length; i++) {
+            let item = Eisdiele.globalData[i];
+            if (item.id == id) {
+                const deleteUrl = `https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=delete&collection=IceList&id=${item.id}`;
+                await fetch(deleteUrl);
+                Eisdiele.globalData.splice(i, 1); // Remove the item from the globalData array
+                break;
             }
-            const deleteUrl = `https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=delete&collection=IceList&id=${dataBaseIndex}`;
-            await fetch(deleteUrl);
         }
     }
     function update() {
         Eisdiele.foregroundCtx.clearRect(0, 0, Eisdiele.foregroundCtx.canvas.width, Eisdiele.foregroundCtx.canvas.height); //clear canvas foreground for moving objects
         Eisdiele.Customers.update();
+        Eisdiele.globalIce.draw(new Vector(0.5 * Eisdiele.foregroundCtx.canvas.width, 0.95 * Eisdiele.foregroundCtx.canvas.height));
     }
     function loadImage(url, imageName) {
         let img = new Image();

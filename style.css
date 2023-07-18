@@ -21,7 +21,6 @@
 #foreground {
   position: absolute;
   margin: 10px;
-  border: 4px dotted red;
 }
 
 #countertop {
@@ -268,5 +267,16 @@
   padding: 10px 50px;
   margin: 20px;
   border-radius: 10px;
+  height: 120%;
   
+}
+
+#counter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: gold;
+  color: white;
+  padding: 20px;
+  font-size: 24px;
 }

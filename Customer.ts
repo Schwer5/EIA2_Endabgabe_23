@@ -20,8 +20,7 @@ namespace Eisdiele {
             // initialize the variables
             this.mood = MOOD.OKAY //give mood okay for the beginning
             this.velocity = 2; //give velocity two 
-            this.waitingTime = 0; 
-            this.wish = this.getRandomIce() //give him an ice from IceList
+            this.waitingTime = 0;
         }
 
         // Getters
@@ -128,12 +127,12 @@ namespace Eisdiele {
             const cornerRadius = 5;
             const textOffsetX = 10;
             const textOffsetY = 20;
-            const message = "Bitte ein";
-    
+            const message = this.wish.name;
+
             // Adjust these to center the bubble on your character
             const bubbleX = this.position.x - bubbleWidth / 2;
             const bubbleY = this.position.y - bubbleHeight - 80;
-    
+
             // Draw the speech bubble
             foregroundCtx.beginPath();
             foregroundCtx.moveTo(bubbleX + cornerRadius, bubbleY);
@@ -142,19 +141,19 @@ namespace Eisdiele {
             foregroundCtx.arcTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY, cornerRadius);
             foregroundCtx.arcTo(bubbleX, bubbleY, bubbleX + bubbleWidth, bubbleY, cornerRadius);
             foregroundCtx.closePath();
-    
+
             // Fill the bubble
             foregroundCtx.fillStyle = 'white';
             foregroundCtx.fill();
-    
+
             // Draw the text
             foregroundCtx.fillStyle = 'black';
             foregroundCtx.font = '16px Arial';
             foregroundCtx.fillText(message, bubbleX + textOffsetX, bubbleY + textOffsetY);
 
-            this.wish.draw();
+            this.wish.draw(new Vector(this.position.x, this.position.y - 80));
         }
-    
+
 
         public checkOrder(order: Ice): boolean {
             return this.wish.scoops.every((val, index) => val === order.scoops[index]) &&
@@ -166,28 +165,92 @@ namespace Eisdiele {
             // code to manage eating
         }
 
-        public getRandomIce() {
-            // Get a random number of scoops (between 1 and 4)
-            let numScoops = Math.floor(Math.random() * 4) + 1;
-            let scoops: FLAVOUR[] = [];
-        
-            // Assign each scoop a random flavour
-            for (let i = 0; i < numScoops; i++) {
-                let randomFlavour = Math.floor(Math.random() * Object.keys(FLAVOUR).length/2);
-                scoops.push(randomFlavour);
+        public async getRandomIce(): Promise<Ice> { //verspricht Eis auszugeben
+            const response = await fetch("https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=find&collection=IceList");
+            const dataJSON = await response.json();
+            const data = dataJSON.data;
+
+            const iceList: Ice[] = [];
+
+            // Convert each item to an Ice object using the Ice constructor
+            for (let docId in data) {
+                let item: Item = data[docId];
+
+                // Map string to ENUM
+                let scoops: FLAVOUR[] = [];
+                let topping: TOPPING = TOPPING.NONE;
+                let decoration: DECORATION = DECORATION.NONE;
+
+                if (item.Kugel1 == "strawberry") {
+                    scoops.push(FLAVOUR.STRAWBERRY);
+                }
+                if (item.Kugel1 == "chocolate") {
+                    scoops.push(FLAVOUR.CHOCOLATE);
+                }
+                if (item.Kugel1 == "lemon") {
+                    scoops.push(FLAVOUR.LEMON);
+                }
+                if (item.Kugel1 == "smurf") {
+                    scoops.push(FLAVOUR.SMURF);
+                }
+
+                if (item.Kugel2 == "strawberry") {
+                    scoops.push(FLAVOUR.STRAWBERRY);
+                }
+                if (item.Kugel2 == "chocolate") {
+                    scoops.push(FLAVOUR.CHOCOLATE);
+                }
+                if (item.Kugel2 == "lemon") {
+                    scoops.push(FLAVOUR.LEMON);
+                }
+                if (item.Kugel2 == "smurf") {
+                    scoops.push(FLAVOUR.SMURF);
+                }
+
+
+                if (item.Kugel3 == "strawberry") {
+                    scoops.push(FLAVOUR.STRAWBERRY);
+                }
+                if (item.Kugel3 == "chocolate") {
+                    scoops.push(FLAVOUR.CHOCOLATE);
+                }
+                if (item.Kugel3 == "lemon") {
+                    scoops.push(FLAVOUR.LEMON);
+                }
+                if (item.Kugel3 == "smurf") {
+                    scoops.push(FLAVOUR.SMURF);
+                }
+
+
+                if (item.Topping == "fruit") {
+                    topping = TOPPING.FRUIT;
+                } else if (item.Topping == "cream") {
+                    topping = TOPPING.CREAM;
+                }
+                if (item.Dekoration == "cherry") {
+                    decoration = DECORATION.CHERRY;
+                } else if (item.Dekoration == "chocosauce") {
+                    decoration = DECORATION.CHOCOSAUCE;
+                } else if (item.Dekoration == "sprinkles") {
+                    decoration = DECORATION.SPRINKLES;
+                } else if (item.Dekoration == "glitter") {
+                    decoration = DECORATION.GLITTER;
+                }
+
+                // Create an Ice instance
+                let ice: Ice = new Ice(scoops, topping, decoration);
+                // Add price to the Ice object
+                ice.price = item.Preis;
+                ice.name = item.icetitle;
+
+                iceList.push(ice);
             }
-        
-            // Assign a random topping
-            let randomTopping = Math.floor(Math.random() * Object.keys(TOPPING).length/2);
-        
-            // Assign a random decoration
-            let randomDecoration = Math.floor(Math.random() * Object.keys(DECORATION).length/2);
-        
-            let ice = new Ice(scoops, randomTopping, randomDecoration);
-        
-            return ice;
+
+            // Pick a random item
+            const randomIndex = Math.floor(Math.random() * iceList.length);
+            return iceList[randomIndex];
         }
-        
+
         public draw() {
             let centerX = this.position.x;
             let centerY = this.position.y;

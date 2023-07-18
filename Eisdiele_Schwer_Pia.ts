@@ -7,7 +7,7 @@
 namespace Eisdiele {
     window.addEventListener("load", handleLoad);
 
-    interface Item {
+    export interface Item {
         id: number;
         icetitle: string;
         Kugel1: string;
@@ -16,11 +16,8 @@ namespace Eisdiele {
         Topping: string;
         Dekoration: string;
         Preis: number;
-        status: boolean;
     }
-
-    let data: Item[] = [];
-
+    
     export enum MOOD {
         HAPPY,
         OKAY,
@@ -29,67 +26,76 @@ namespace Eisdiele {
         ANGRY
     }
     export enum FLAVOUR {
-        STRAWBERRY,
-        CHOCOLATE,
-        LEMON,
-        SMURF
+        NONE = "",
+        STRAWBERRY = "strawberry",
+        CHOCOLATE = "chocolate",
+        LEMON = "lemon",
+        SMURF = "smurf"
     }
+    
     export enum TOPPING {
-        CREAM,
-        FRUIT
+        NONE = "",
+        CREAM = "cream",
+        FRUIT = "fruit"
     }
+    
     export enum DECORATION {
-        CHERRY,
-        CHOCOSAUCE,
-        SPRINKLES,
-        GLITTER
+        NONE = "",
+        CHERRY = "cherry",
+        CHOCOSAUCE = "chocosauce",
+        SPRINKLES = "sprinkles",
+        GLITTER = "glitter"
     }
-
+    
     export class Vector {
         private _x: number;
         private _y: number;
-
+        
         constructor(x: number = 0, y: number = 0) {
             this._x = x;
             this._y = y;
         }
-
+        
         // Getters
         public get x(): number {
             return this._x;
         }
-
+        
         public get y(): number {
             return this._y;
         }
-
+        
         // Setters
         public set x(value: number) {
             this._x = value;
         }
-
+        
         public set y(value: number) {
             this._y = value;
         }
-
+        
         public equals(other: Vector, tolerance: number = 0.01): boolean {
             return Math.abs(this._x - other._x) < tolerance && Math.abs(this._y - other._y) < tolerance;
         }
     }
-
+    
     export let backgroundCtx: CanvasRenderingContext2D;
     export let foregroundCtx: CanvasRenderingContext2D;
-
+    
     export let Customers: CustomerList;
     export let images: { [key: string]: HTMLImageElement } = {};
+    export let globalData: Item[] = [];
+    export let globalIce: any;
 
+    export let globalScore: number = 0;
+    
     async function handleLoad(_event: Event) {
-
+        
+        loaddata();
         let addtask: HTMLElement = <HTMLElement>document.querySelector('#addrecipe');
         addtask.addEventListener('click', logaddtask);
-        loaddata();
-
-
+        
+        
         let backgroundCanvas: HTMLCanvasElement | null = document.querySelector("#background") as HTMLCanvasElement; //get canvas Element from HTML 
         let foregroundCanvas: HTMLCanvasElement | null = document.querySelector("#foreground") as HTMLCanvasElement; //get canvas Element from HTML
         if (!backgroundCanvas)
@@ -103,6 +109,7 @@ namespace Eisdiele {
         backgroundCtx = <CanvasRenderingContext2D>backgroundCanvas.getContext('2d'); //get canvas rendering context
         foregroundCtx = <CanvasRenderingContext2D>foregroundCanvas.getContext('2d');
         Customers = new CustomerList();
+        globalIce = new Ice([FLAVOUR.NONE, FLAVOUR.NONE, FLAVOUR.NONE], TOPPING.NONE, DECORATION.NONE);
         Customers.addCustomer();
 
         let seat0: HTMLDivElement = document.querySelector("#seat0") as HTMLDivElement; //select divs from html & add click event Listener
@@ -117,6 +124,27 @@ namespace Eisdiele {
         seat4.addEventListener("click", Customers.sendToSeat4);
         let seat5: HTMLDivElement = document.querySelector("#seat5") as HTMLDivElement;
         seat5.addEventListener("click", Customers.sendToSeat5);
+
+        let fruit: HTMLDivElement = document.querySelector("#fruit") as HTMLDivElement;
+        fruit.addEventListener("click", addToIce_fruit)
+        let cream: HTMLDivElement = document.querySelector("#cream") as HTMLDivElement;
+        cream.addEventListener("click", addToIce_cream)
+        let strawberry: HTMLDivElement = document.querySelector("#strawberry") as HTMLDivElement;
+        strawberry.addEventListener("click", addToIce_strawberry)
+        let chocolate: HTMLDivElement = document.querySelector("#chocolate") as HTMLDivElement;
+        chocolate.addEventListener("click", addToIce_chocolate)
+        let lemon: HTMLDivElement = document.querySelector("#lemon") as HTMLDivElement;
+        lemon.addEventListener("click", addToIce_lemon)
+        let smurf: HTMLDivElement = document.querySelector("#smurf") as HTMLDivElement;
+        smurf.addEventListener("click", addToIce_smurf)
+        let cherry: HTMLDivElement = document.querySelector("#cherry") as HTMLDivElement;
+        cherry.addEventListener("click", addToIce_cherry)
+        let chocosauce: HTMLDivElement = document.querySelector("#chocosauce") as HTMLDivElement;
+        chocosauce.addEventListener("click", addToIce_chocosauce)
+        let sprinkles: HTMLDivElement = document.querySelector("#sprinkles") as HTMLDivElement;
+        sprinkles.addEventListener("click", addToIce_sprinkles)
+        let glitter: HTMLDivElement = document.querySelector("#glitter") as HTMLDivElement;
+        glitter.addEventListener("click", addToIce_glitter)
 
         loadImage("images/fruit.png", "fruit"); //give Picture Data a name
         loadImage("images/cream.png", "cream");
@@ -154,7 +182,7 @@ namespace Eisdiele {
         const decorationValue = selectDecoration.value;
 
         const selectPrice = document.querySelector('#inputPrice') as HTMLInputElement;
-        const PriceValue = selectPrice.value as number;
+        const PriceValue = parseInt(selectPrice.value);
 
 
         let newid = 0;
@@ -162,13 +190,13 @@ namespace Eisdiele {
         while (idExists) {//ob die aktuelle Nummer (newid) einzigartig ist. 
             newid = newid + 1//Wir gehen zunächst davon aus, dass sie einzigartig ist, 
             idExists = false//indem wir idExists auf false setzen. Dann überprüfen wir das, 
-            for (let docId in data) {//indem wir alle vorhandenen IDs in data durchgehen. Wenn wir eine gleiche ID finden, 
-                let item = data[docId]//setzen wir idExists auf true, um zu zeigen, dass die aktuelle Nummer doch nicht einzigartig ist.
+            for (let docId in globalData) {//indem wir alle vorhandenen IDs in data durchgehen. Wenn wir eine gleiche ID finden, 
+                let item = globalData[docId]//setzen wir idExists auf true, um zu zeigen, dass die aktuelle Nummer doch nicht einzigartig ist.
                 if (item.id == newid) {// Dann suchen wir weiter nach einer einzigartigen Nummer.
                     idExists = true;
                 }
             }
-        }
+        } 
 
         const newItem: Item = {
             id: newid,
@@ -179,9 +207,8 @@ namespace Eisdiele {
             Topping: toppingValue,
             Dekoration: decorationValue,
             Preis: PriceValue,
-            status: false,
         };
-        data.push(newItem);
+        globalData.push(newItem);
 
         createtask(newItem);
         await fetch(`https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=insert&collection=IceList&data=${JSON.stringify(newItem)}`);
@@ -192,38 +219,23 @@ namespace Eisdiele {
         selectKugel3.value = '';
         selectTopping.value = '';
         selectDecoration.value = '';
+        selectPrice.value='';
     }
 
     async function createtask(item: Item): Promise<void> {
         let newDiv = document.createElement('div');
         newDiv.classList.add('inputtask')
         newDiv.innerHTML = `
-            <input type="text" id="inputIce" placeholder="${item.icetitle}">
-            <label for="selectscoop1">Kugel 1</label>
-            <select selectKugel1="Name" id="selectscoop1">
-                <option value="" selected>${item.Kugel1}</option>
-            </select></br>
-            <label for="selectscoop2">Kugel 2</label>
-            <select selectKugel2="Name" id="selectscoop2">
-                <option value="" selected>${item.Kugel2}</option>
-            </select></br>
-            <label for="selectscoop3">Kugel 3</label>
-            <select selectKugel2="Name" id="selectscoop3">
-            <option value="" selected>${item.Kugel3}</option>
-            </select></br>
-            <label for="selecttopping">Topping</label>
-            <select selecttopping="Name" id="selecttopping">
-            <option value="" selected>${item.Topping}</option>
-            </select></br>
-            <label for="selectdecoration">Dekoration</label>
-            <select selectdecoration="Name" id="selectdecoration">
-            <option value="" selected>${item.Dekoration}</option>
-            </select>
-    
-
-            <button id="deletetask"><i class="fas fa-trash"></i></button>
+        <p><strong>${item.icetitle}</strong></p>
+        Kugel 1: <span id="scoop1">${item.Kugel1}</span></br>
+        Kugel 2: <span id="scoop2">${item.Kugel2}</span></br>
+        Kugel 3: <span id="scoop3">${item.Kugel3}</span></br>
+        Topping: <span id="topping">${item.Topping}</span></br>
+        Dekoration: <span id="decoration">${item.Dekoration}</span>
+        Preis: <span id="price">${item.Preis}</span>
+        <button id="deletetask"><i class="fas fa-trash"></i></button>
         `;
-
+    
         let deleteButton = newDiv.querySelector('#deletetask');
         if (deleteButton) {
             deleteButton.addEventListener('click', function (event) {
@@ -238,12 +250,78 @@ namespace Eisdiele {
     async function loaddata(): Promise<void> {
         const response = await fetch("https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=find&collection=IceList");
         const dataJSON = await response.json();
-        data = dataJSON.data;
+        let data = dataJSON.data;
         for (let docId in data) {
             let item = data[docId]
 
+            globalData.push(item);
+
             createtask(item);
         }
+    }
+
+    function addToIce_fruit(): void{
+        globalIce.topping = TOPPING.FRUIT;
+    }
+    function addToIce_cream(): void{
+        globalIce.topping = TOPPING.CREAM;
+    }
+    function addToIce_strawberry(): void{
+        if (globalIce.scoops[0] == FLAVOUR.NONE){
+            globalIce.scoops[0] = FLAVOUR.STRAWBERRY; 
+        }
+        else if (globalIce.scoops[1] == FLAVOUR.NONE){
+            globalIce.scoops[1] = FLAVOUR.STRAWBERRY; 
+        }
+        else if (globalIce.scoops[2] == FLAVOUR.NONE){
+            globalIce.scoops[2] = FLAVOUR.STRAWBERRY; 
+        }
+        
+    }
+    function addToIce_chocolate(): void{
+        if (globalIce.scoops[0] == FLAVOUR.NONE){
+            globalIce.scoops[0] = FLAVOUR.CHOCOLATE; 
+        }
+        else if (globalIce.scoops[1] == FLAVOUR.NONE){
+            globalIce.scoops[1] = FLAVOUR.CHOCOLATE; 
+        }
+        else if (globalIce.scoops[2] == FLAVOUR.NONE){
+            globalIce.scoops[2] = FLAVOUR.CHOCOLATE; 
+        }
+    }
+    function addToIce_lemon(): void{
+        if (globalIce.scoops[0] == FLAVOUR.NONE){
+            globalIce.scoops[0] = FLAVOUR.LEMON; 
+        }
+        else if (globalIce.scoops[1] == FLAVOUR.NONE){
+            globalIce.scoops[1] = FLAVOUR.LEMON; 
+        }
+        else if (globalIce.scoops[2] == FLAVOUR.NONE){
+            globalIce.scoops[2] = FLAVOUR.LEMON; 
+        }
+    }
+    function addToIce_smurf(): void{
+        if (globalIce.scoops[0] ==  FLAVOUR.NONE){
+            globalIce.scoops[0] = FLAVOUR.SMURF; 
+        }
+        else if (globalIce.scoops[1] ==  FLAVOUR.NONE){
+            globalIce.scoops[1] = FLAVOUR.SMURF; 
+        }
+        else if (globalIce.scoops[2] ==  FLAVOUR.NONE){
+            globalIce.scoops[2] = FLAVOUR.SMURF; 
+        }
+    }
+    function addToIce_cherry(): void{
+        globalIce.decoration = DECORATION.CHERRY
+    }
+    function addToIce_chocosauce(): void{
+        globalIce.decoration = DECORATION.CHOCOSAUCE 
+    }
+    function addToIce_sprinkles(): void{
+        globalIce.decoration = DECORATION.SPRINKLES
+    }
+    function addToIce_glitter(): void{
+        globalIce.decoration = DECORATION.GLITTER
     }
 
     function deletetaskdom(event: Event): void {
@@ -253,21 +331,21 @@ namespace Eisdiele {
     }
 
     async function deleteDataFromServer(id: number): Promise<void> {
-        let dataBaseIndex = ""
-        for (let docId in data) { //wir gehen durch jede docId(z.B.644cdd7d5caa0) in data durch 
-            let item = data[docId] // wir holen uns das item für eine docId 
-            if (item.id == id) {    // wir schauen ob das item mit docId die gesuchte item.id(man geht in ein item und vergleicht dort die "id") hat
-                dataBaseIndex = docId // wenn wir die übereinstimmende id gefunden haben, speichern wir diese in dataBaseIndex
+        for (let i = 0; i < globalData.length; i++) { 
+            let item = globalData[i] 
+            if (item.id == id) {
+                const deleteUrl = `https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=delete&collection=IceList&id=${item.id}`;
+                await fetch(deleteUrl);
+                globalData.splice(i, 1); // Remove the item from the globalData array
+                break;
             }
-            const deleteUrl = `https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=delete&collection=IceList&id=${dataBaseIndex}`;
-            await fetch(deleteUrl);
         }
     }
 
     function update(): void {
         foregroundCtx.clearRect(0, 0, foregroundCtx.canvas.width, foregroundCtx.canvas.height); //clear canvas foreground for moving objects
         Customers.update();
-
+        globalIce.draw(new Vector(0.5 * foregroundCtx.canvas.width, 0.95 * foregroundCtx.canvas.height));
     }
 
     function loadImage(url: string, imageName: string): void {

@@ -11,10 +11,12 @@ var Eisdiele;
         _topping;
         _decoration;
         _position;
-        constructor(_scoops, _topping, _decoration) {
-            this._scoops = _scoops;
-            this._topping = _topping;
-            this._decoration = _decoration;
+        _price;
+        _name;
+        constructor(scoops, topping, decoration) {
+            this._scoops = scoops;
+            this._topping = topping;
+            this._decoration = decoration;
             this._position = new Eisdiele.Vector();
         }
         // Getters
@@ -30,6 +32,12 @@ var Eisdiele;
         get position() {
             return this._position;
         }
+        get price() {
+            return this._price;
+        }
+        get name() {
+            return this._name;
+        }
         // Setters
         set scoops(value) {
             this._scoops = value;
@@ -43,19 +51,53 @@ var Eisdiele;
         set position(value) {
             this._position = value;
         }
+        set price(value) {
+            this._price = value;
+        }
+        set name(value) {
+            this._name = value;
+        }
         // Functions
         calculatePrice() {
             // Calculate price based on scoops, topping and decoration
             return 1;
         }
-        draw() {
+        draw(position) {
             let cw = Eisdiele.foregroundCtx.canvas.width;
             let ch = Eisdiele.foregroundCtx.canvas.height;
-            this.drawScoop1(new Eisdiele.Vector(0.5 * cw, 0.2 * ch));
-            this.drawScoop2(new Eisdiele.Vector(0.3 * cw, 0.2 * ch));
-            this.drawScoop3(new Eisdiele.Vector(0.7 * cw, 0.2 * ch));
+            let numberScoops = 0;
+            let fillColors = [];
+            for (let i = 0; i < this.scoops.length; i++) {
+                let scoop = this.scoops[i];
+                if (scoop != Eisdiele.FLAVOUR.NONE) {
+                    numberScoops++;
+                    switch (scoop) {
+                        case Eisdiele.FLAVOUR.STRAWBERRY:
+                            fillColors.push("pink");
+                            break;
+                        case Eisdiele.FLAVOUR.CHOCOLATE:
+                            fillColors.push("brown");
+                            break;
+                        case Eisdiele.FLAVOUR.LEMON:
+                            fillColors.push("yellow");
+                            break;
+                        case Eisdiele.FLAVOUR.SMURF:
+                            fillColors.push("cyan");
+                            break;
+                    }
+                }
+            }
+            if (numberScoops == 1) {
+                this.drawScoop1(position, fillColors[0]);
+            }
+            if (numberScoops == 2) {
+                this.drawScoop2(position, fillColors[0], fillColors[1]);
+            }
+            if (numberScoops == 3) {
+                this.drawScoop3(position, fillColors[0], fillColors[1], fillColors[2]);
+            }
         }
-        drawScoop1(position) {
+        drawScoop1(position, fillColor1) {
             let cw = Eisdiele.foregroundCtx.canvas.width;
             let ch = Eisdiele.foregroundCtx.canvas.height;
             Eisdiele.foregroundCtx.save();
@@ -66,15 +108,23 @@ var Eisdiele;
             Eisdiele.foregroundCtx.closePath();
             Eisdiele.foregroundCtx.beginPath();
             Eisdiele.foregroundCtx.arc(position.x, position.y, 20, 0, 2 * Math.PI);
-            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fillStyle = fillColor1;
             Eisdiele.foregroundCtx.fill();
             Eisdiele.foregroundCtx.closePath();
-            let imageWidth = 80;
-            let imageHeight = 80;
-            Eisdiele.foregroundCtx.drawImage(Eisdiele.images["cream"], position.x - imageWidth / 2, position.y - imageHeight / 2 - 40, imageWidth, imageHeight);
+            if (this.topping !== Eisdiele.TOPPING.NONE) {
+                let imageWidth = 40;
+                let imageHeight = 40;
+                Eisdiele.foregroundCtx.drawImage(Eisdiele.images[this.topping], position.x - imageWidth / 2, position.y - imageHeight / 2, imageWidth, imageHeight);
+            }
+            // Check if decoration is not none, then draw the image
+            if (this.decoration !== Eisdiele.DECORATION.NONE) {
+                let imageWidth = 20;
+                let imageHeight = 20;
+                Eisdiele.foregroundCtx.drawImage(Eisdiele.images[this.decoration], position.x - imageWidth / 2, position.y - imageHeight / 2 - 20, imageWidth, imageHeight);
+            }
             Eisdiele.foregroundCtx.restore();
         }
-        drawScoop2(position) {
+        drawScoop2(position, fillColor1, fillColor2) {
             let cw = Eisdiele.foregroundCtx.canvas.width;
             let ch = Eisdiele.foregroundCtx.canvas.height;
             Eisdiele.foregroundCtx.save();
@@ -85,20 +135,28 @@ var Eisdiele;
             Eisdiele.foregroundCtx.closePath();
             Eisdiele.foregroundCtx.beginPath();
             Eisdiele.foregroundCtx.arc(position.x + 15, position.y + 10, 20, 0, 2 * Math.PI);
-            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fillStyle = fillColor1;
             Eisdiele.foregroundCtx.fill();
             Eisdiele.foregroundCtx.closePath();
             Eisdiele.foregroundCtx.beginPath();
             Eisdiele.foregroundCtx.arc(position.x - 15, position.y - 10, 20, 0, 2 * Math.PI);
-            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fillStyle = fillColor2;
             Eisdiele.foregroundCtx.fill();
             Eisdiele.foregroundCtx.closePath();
-            let imageWidth = 40;
-            let imageHeight = 40;
-            Eisdiele.foregroundCtx.drawImage(Eisdiele.images["sprinkles"], position.x - imageWidth / 2, position.y - imageHeight / 2, imageWidth, imageHeight);
+            if (this.topping !== Eisdiele.TOPPING.NONE) {
+                let imageWidth = 40;
+                let imageHeight = 40;
+                Eisdiele.foregroundCtx.drawImage(Eisdiele.images[this.topping], position.x - imageWidth / 2, position.y - imageHeight / 2, imageWidth, imageHeight);
+            }
+            // Check if decoration is not none, then draw the image
+            if (this.decoration !== Eisdiele.DECORATION.NONE) {
+                let imageWidth = 20;
+                let imageHeight = 20;
+                Eisdiele.foregroundCtx.drawImage(Eisdiele.images[this.decoration], position.x - imageWidth / 2, position.y - imageHeight / 2 - 20, imageWidth, imageHeight);
+            }
             Eisdiele.foregroundCtx.restore();
         }
-        drawScoop3(position) {
+        drawScoop3(position, fillColor1, fillColor2, fillColor3) {
             let cw = Eisdiele.foregroundCtx.canvas.width;
             let ch = Eisdiele.foregroundCtx.canvas.height;
             Eisdiele.foregroundCtx.save();
@@ -109,19 +167,30 @@ var Eisdiele;
             Eisdiele.foregroundCtx.closePath();
             Eisdiele.foregroundCtx.beginPath();
             Eisdiele.foregroundCtx.arc(position.x - 15, position.y - 10, 20, 0, 2 * Math.PI);
-            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fillStyle = fillColor1;
             Eisdiele.foregroundCtx.fill();
             Eisdiele.foregroundCtx.closePath();
             Eisdiele.foregroundCtx.beginPath();
             Eisdiele.foregroundCtx.arc(position.x + 15, position.y - 10, 20, 0, 2 * Math.PI);
-            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fillStyle = fillColor2;
             Eisdiele.foregroundCtx.fill();
             Eisdiele.foregroundCtx.closePath();
             Eisdiele.foregroundCtx.beginPath();
             Eisdiele.foregroundCtx.arc(position.x, position.y + 20, 20, 0, 2 * Math.PI);
-            Eisdiele.foregroundCtx.fillStyle = "pink";
+            Eisdiele.foregroundCtx.fillStyle = fillColor3;
             Eisdiele.foregroundCtx.fill();
             Eisdiele.foregroundCtx.closePath();
+            if (this.topping !== Eisdiele.TOPPING.NONE) {
+                let imageWidth = 40;
+                let imageHeight = 40;
+                Eisdiele.foregroundCtx.drawImage(Eisdiele.images[this.topping], position.x - imageWidth / 2, position.y - imageHeight / 2, imageWidth, imageHeight);
+            }
+            // Check if decoration is not none, then draw the image
+            if (this.decoration !== Eisdiele.DECORATION.NONE) {
+                let imageWidth = 20;
+                let imageHeight = 20;
+                Eisdiele.foregroundCtx.drawImage(Eisdiele.images[this.decoration], position.x - imageWidth / 2, position.y - imageHeight / 2 - 20, imageWidth, imageHeight);
+            }
             Eisdiele.foregroundCtx.restore();
         }
     }

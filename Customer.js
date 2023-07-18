@@ -21,7 +21,6 @@ var Eisdiele;
             this.mood = Eisdiele.MOOD.OKAY; //give mood okay for the beginning
             this.velocity = 2; //give velocity two 
             this.waitingTime = 0;
-            this.wish = this.getRandomIce(); //give him an ice from IceList
         }
         // Getters
         get mood() {
@@ -108,7 +107,7 @@ var Eisdiele;
             const cornerRadius = 5;
             const textOffsetX = 10;
             const textOffsetY = 20;
-            const message = "Bitte ein";
+            const message = this.wish.name;
             // Adjust these to center the bubble on your character
             const bubbleX = this.position.x - bubbleWidth / 2;
             const bubbleY = this.position.y - bubbleHeight - 80;
@@ -127,7 +126,7 @@ var Eisdiele;
             Eisdiele.foregroundCtx.fillStyle = 'black';
             Eisdiele.foregroundCtx.font = '16px Arial';
             Eisdiele.foregroundCtx.fillText(message, bubbleX + textOffsetX, bubbleY + textOffsetY);
-            this.wish.draw();
+            this.wish.draw(new Eisdiele.Vector(this.position.x, this.position.y - 80));
         }
         checkOrder(order) {
             return this.wish.scoops.every((val, index) => val === order.scoops[index]) &&
@@ -137,21 +136,82 @@ var Eisdiele;
         eating() {
             // code to manage eating
         }
-        getRandomIce() {
-            // Get a random number of scoops (between 1 and 4)
-            let numScoops = Math.floor(Math.random() * 4) + 1;
-            let scoops = [];
-            // Assign each scoop a random flavour
-            for (let i = 0; i < numScoops; i++) {
-                let randomFlavour = Math.floor(Math.random() * Object.keys(Eisdiele.FLAVOUR).length / 2);
-                scoops.push(randomFlavour);
+        async getRandomIce() {
+            const response = await fetch("https://webuser.hs-furtwangen.de/~schwerpi/Database/?command=find&collection=IceList");
+            const dataJSON = await response.json();
+            const data = dataJSON.data;
+            const iceList = [];
+            // Convert each item to an Ice object using the Ice constructor
+            for (let docId in data) {
+                let item = data[docId];
+                // Map string to ENUM
+                let scoops = [];
+                let topping = Eisdiele.TOPPING.NONE;
+                let decoration = Eisdiele.DECORATION.NONE;
+                if (item.Kugel1 == "strawberry") {
+                    scoops.push(Eisdiele.FLAVOUR.STRAWBERRY);
+                }
+                if (item.Kugel1 == "chocolate") {
+                    scoops.push(Eisdiele.FLAVOUR.CHOCOLATE);
+                }
+                if (item.Kugel1 == "lemon") {
+                    scoops.push(Eisdiele.FLAVOUR.LEMON);
+                }
+                if (item.Kugel1 == "smurf") {
+                    scoops.push(Eisdiele.FLAVOUR.SMURF);
+                }
+                if (item.Kugel2 == "strawberry") {
+                    scoops.push(Eisdiele.FLAVOUR.STRAWBERRY);
+                }
+                if (item.Kugel2 == "chocolate") {
+                    scoops.push(Eisdiele.FLAVOUR.CHOCOLATE);
+                }
+                if (item.Kugel2 == "lemon") {
+                    scoops.push(Eisdiele.FLAVOUR.LEMON);
+                }
+                if (item.Kugel2 == "smurf") {
+                    scoops.push(Eisdiele.FLAVOUR.SMURF);
+                }
+                if (item.Kugel3 == "strawberry") {
+                    scoops.push(Eisdiele.FLAVOUR.STRAWBERRY);
+                }
+                if (item.Kugel3 == "chocolate") {
+                    scoops.push(Eisdiele.FLAVOUR.CHOCOLATE);
+                }
+                if (item.Kugel3 == "lemon") {
+                    scoops.push(Eisdiele.FLAVOUR.LEMON);
+                }
+                if (item.Kugel3 == "smurf") {
+                    scoops.push(Eisdiele.FLAVOUR.SMURF);
+                }
+                if (item.Topping == "fruit") {
+                    topping = Eisdiele.TOPPING.FRUIT;
+                }
+                else if (item.Topping == "cream") {
+                    topping = Eisdiele.TOPPING.CREAM;
+                }
+                if (item.Dekoration == "cherry") {
+                    decoration = Eisdiele.DECORATION.CHERRY;
+                }
+                else if (item.Dekoration == "chocosauce") {
+                    decoration = Eisdiele.DECORATION.CHOCOSAUCE;
+                }
+                else if (item.Dekoration == "sprinkles") {
+                    decoration = Eisdiele.DECORATION.SPRINKLES;
+                }
+                else if (item.Dekoration == "glitter") {
+                    decoration = Eisdiele.DECORATION.GLITTER;
+                }
+                // Create an Ice instance
+                let ice = new Eisdiele.Ice(scoops, topping, decoration);
+                // Add price to the Ice object
+                ice.price = item.Preis;
+                ice.name = item.icetitle;
+                iceList.push(ice);
             }
-            // Assign a random topping
-            let randomTopping = Math.floor(Math.random() * Object.keys(Eisdiele.TOPPING).length / 2);
-            // Assign a random decoration
-            let randomDecoration = Math.floor(Math.random() * Object.keys(Eisdiele.DECORATION).length / 2);
-            let ice = new Eisdiele.Ice(scoops, randomTopping, randomDecoration);
-            return ice;
+            // Pick a random item
+            const randomIndex = Math.floor(Math.random() * iceList.length);
+            return iceList[randomIndex];
         }
         draw() {
             let centerX = this.position.x;
